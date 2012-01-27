@@ -1,36 +1,53 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Snap web server</title>
-    <link rel="stylesheet"
-          href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css"
-          />
     <meta charset="utf-8" />
+    <title>Заполнятор</title>
+
+    <!-- DOM manipulation -->
+    <script src="/resources/static/js/jquery-1.7.1.min.js" />
+
+    <!-- Utility library, Backbone dependency -->
+    <script src="/resources/static/js/underscore-min.js" />
+    <!-- Loose MVC -->
+    <script src="/resources/static/js/backbone-min.js" />
+
+    <!-- Simple templates -->
+    <script src="/resources/static/js/mustache.js" />
+
+    <script src="/resources/static/js/metamodel.js" />
+    <script src="/resources/static/js/models/scp.js" />
+    <script src="/resources/static/js/run.js" />
   </head>
   <body>
-    <div id="content">
-      <h1>It works!</h1>
-      <p>
-        This is a simple demo page served using
-        <a href="http://snapframework.com/docs/tutorials/heist">Heist</a>
-        and the <a href="http://snapframework.com/">Snap</a> web framework.
-      </p>
-      <p>
-        Echo test:
-        <a href="/echo/cats">cats</a>
-        <a href="/echo/dogs">dogs</a>
-        <a href="/echo/fish">fish</a>
-      </p>
-      <table id="info">
-        <tr>
-          <td>Config generated at:</td>
-          <td><start-time/></td>
-        </tr>
-        <tr>
-          <td>Page generated at:</td>
-          <td><current-time/></td>
-        </tr>
-      </table>
+    <div class="container">
+      <h1>Заполнение формы</h1>
+      <form>
+        <ul id="form" />
+        <input type="submit" value="Отправить" />
+      </form>
     </div>
+
+    <script type="text/template" id="text-field-template">
+      <li>
+        <label>{{ field.label }}
+          <input type="text" name="{{ field.name }}" 
+                 value="{{ value }}" />
+        </label>
+      </li>
+    </script>
+
+    <script type="text/template" id="choice-field-template">
+      <li>
+        <select name="{{ field.name }}">
+          {{ #choice }}
+          <option value="{{ value }}" 
+                  {{ #selected }}selected{{ /selected }}>
+            {{ value }}
+          </option>
+          {{ /choice }}
+        </select>
+      </li>
+    </script>
   </body>
 </html>

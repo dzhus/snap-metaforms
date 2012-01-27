@@ -47,7 +47,7 @@ index = ifTop $ heistLocal (bindSplices indexSplices) $ render "index"
 routes :: [(ByteString, Handler App App ())]
 routes = [ ("/",            index)
          , ("", with heist heistServe)
-         , ("", serveDirectory "resources/static")
+         , ("resources/static", serveDirectory "resources/static")
          ]
 
 ------------------------------------------------------------------------------

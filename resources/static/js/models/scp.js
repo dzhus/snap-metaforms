@@ -12,7 +12,7 @@ var metamodel =
         {
             "name": "class",
             "type": fieldType.choice,
-            "default": "Безопасный",
+            "default": "Евклид",
             "choice": ["Безопасный", "Евклид", "Кетер"],
             "label": "Класс"
         },
