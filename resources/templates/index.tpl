@@ -2,7 +2,10 @@
 <html>
   <head>
     <title>Snap web server</title>
-    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css"
+          />
+    <meta charset="utf-8" />
   </head>
   <body>
     <div id="content">
