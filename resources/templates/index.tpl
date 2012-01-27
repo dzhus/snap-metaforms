@@ -28,9 +28,17 @@
       </form>
     </div>
 
+    <script type="text/template" id="longtext-field-template">
+      <li>
+        <label>{{ field.label }}:<br />
+          <textarea name="{{ field.name }}" rows="7" cols="70">{{ value }}</textarea>
+        </label>
+      </li>
+    </script>
+
     <script type="text/template" id="text-field-template">
       <li>
-        <label>{{ field.label }}
+        <label>{{ field.label }}:<br />
           <input type="text" name="{{ field.name }}" 
                  value="{{ value }}" />
         </label>
@@ -39,14 +47,16 @@
 
     <script type="text/template" id="choice-field-template">
       <li>
-        <select name="{{ field.name }}">
-          {{# choice }}
-          <option value="{{ value }}" 
-                  {{# selected }}selected{{/ selected }}>
-            {{ value }}
-          </option>
-          {{/ choice }}
-        </select>
+        <label>{{ field.label }}:<br />
+          <select name="{{ field.name }}">
+            {{# choice }}
+            <option value="{{ value }}" 
+                    {{# selected }}selected{{/ selected }}>
+              {{ value }}
+            </option>
+            {{/ choice }}
+          </select>
+        </label>
       </li>
     </script>
   </body>

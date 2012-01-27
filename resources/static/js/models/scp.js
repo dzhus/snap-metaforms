@@ -18,12 +18,12 @@ var metamodel =
         },
         {
             "name": "conditions",
-            "type": fieldType.text,
+            "type": fieldType.longText,
             "label": "Условия содержания"
         },
         {
             "name": "description",
-            "type": fieldType.text,
+            "type": fieldType.longText,
             "label": "Описание"
         }
     ]

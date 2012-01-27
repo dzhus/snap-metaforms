@@ -50,6 +50,7 @@ function backbonizeView(metamodel) {
             $(this.el).empty();
 
             /// @todo To dict
+            var lt = $("#longtext-field-template").html();
             var tt = $("#text-field-template").html();
             var ct = $("#choice-field-template").html();
 
@@ -59,10 +60,14 @@ function backbonizeView(metamodel) {
             /// field type and render actual model value in it
             _.each(metamodel.fields,
                    function(f) {
+                       var ctx = {field: f, value: j[f.name]};
                        switch (f.type) {
                        case fieldType.number:
                        case fieldType.text:
-                           contents += Mustache.render(tt, {field: f, value: j[f.name]});
+                           contents += Mustache.render(tt, ctx);
+                           break
+                       case fieldType.longText:
+                           contents += Mustache.render(lt, ctx);
                            break
                        case fieldType.choice:
                            contents += Mustache.render(ct, {field: f, value: j[f.name], 
