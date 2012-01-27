@@ -40,12 +40,12 @@
     <script type="text/template" id="choice-field-template">
       <li>
         <select name="{{ field.name }}">
-          {{ #choice }}
+          {{# choice }}
           <option value="{{ value }}" 
-                  {{ #selected }}selected{{ /selected }}>
+                  {{# selected }}selected{{/ selected }}>
             {{ value }}
           </option>
-          {{ /choice }}
+          {{/ choice }}
         </select>
       </li>
     </script>
