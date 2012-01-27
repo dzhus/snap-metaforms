@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>Заполнятор</title>
+    <link rel="stylesheet" href="/resources/static/css/main.css" />
 
     <!-- DOM manipulation -->
     <script src="/resources/static/js/jquery-1.7.1.min.js" />
