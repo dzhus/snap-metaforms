@@ -1,7 +1,4 @@
-/// Annotated model which contains
-
-var metamodel =
-{
+({
     "name": "SCP",
     "fields": [
         {
@@ -27,4 +24,4 @@ var metamodel =
             "label": "Описание"
         }
     ]
-};
+})

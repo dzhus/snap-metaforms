@@ -17,8 +17,7 @@
     <script src="/resources/static/js/mustache.js" />
 
     <script src="/resources/static/js/metamodel.js" />
-    <script src="/resources/static/js/models/scp.js" />
-    <script src="/resources/static/js/run.js" />
+    <script src="/resources/static/js/load-model.js" />
   </head>
   <body>
     <div class="container">

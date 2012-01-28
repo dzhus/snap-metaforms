@@ -2,9 +2,7 @@
 
 {-|
 
-This is where all the routes and handlers are defined for your site. The
-'app' function is the initializer that combines everything together and
-is exported by this module.
+Build application from Redbone snaplet and utility handlers.
 
 -}
 
@@ -27,36 +25,22 @@ import           Snap.Util.FileServe
 import           Text.Templating.Heist
 import           Text.XmlHtml hiding (render)
 
-import           Application
-
-
-------------------------------------------------------------------------------
--- | Renders the front page of the sample site.
---
--- The 'ifTop' is required to limit this to the top of a route.
--- Otherwise, the way the route table is currently set up, this action
--- would be given every request.
-index :: Handler App App ()
-index = ifTop $ heistLocal (bindSplices indexSplices) $ render "index"
-  where
-    indexSplices =
-        [("start-time", textSplice "yo dawg")]
+import Application
+import qualified Redbone as R
 
 ------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, Handler App App ())]
-routes = [ ("/",            index)
-         , ("", with heist heistServe)
-         , ("resources/static", serveDirectory "resources/static")
+routes = [
+          ("resources/static", serveDirectory "resources/static")
          ]
 
 ------------------------------------------------------------------------------
 -- | The application initializer.
 app :: SnapletInit App App
-app = makeSnaplet "app" "An snaplet example application." Nothing $ do
-    sTime <- liftIO getCurrentTime
-    h <- nestSnaplet "heist" heist $ heistInit "resources/templates"
-    addRoutes routes
-    return $ App h sTime
-
-
+app = makeSnaplet "app" "Forms application" Nothing $ do
+  r <- nestSnaplet "rb" redbone $ R.redboneInit
+  h <- nestSnaplet "heist" heist $ heistInit "resources/templates"
+  sTime <- liftIO getCurrentTime
+  addRoutes routes
+  return $ App h r sTime

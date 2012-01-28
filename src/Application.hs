@@ -15,8 +15,11 @@ import Data.Time.Clock
 import Snap.Snaplet
 import Snap.Snaplet.Heist
 
+import Redbone
+
 data App = App
     { _heist :: Snaplet (Heist App)
+    , _redbone :: Snaplet Redbone
     , _startTime :: UTCTime
     }
 
