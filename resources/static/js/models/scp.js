@@ -7,6 +7,16 @@
             "label": "Код",
         },
         {
+            "name": "title",
+            "type": fieldType.text,
+            "label": "Название",
+        },
+        {
+            "name": "foundAt",
+            "type": fieldType.text,
+            "label": "Место обнаружения",
+        },
+        {
             "name": "class",
             "type": fieldType.choice,
             "default": "Евклид",
