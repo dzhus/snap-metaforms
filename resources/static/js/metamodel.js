@@ -20,7 +20,9 @@ function backbonizeModel(metamodel) {
           });
 
     var M = Backbone.Model.extend({
-        "defaults": defaults});        
+        "defaults": defaults,
+        "urlRoot": "/" + metamodel.name
+    });        
 
     return M;
 }
