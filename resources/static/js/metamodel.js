@@ -21,7 +21,7 @@ function backbonizeModel(metamodel) {
 
     var M = Backbone.Model.extend({
         "defaults": defaults,
-        "urlRoot": "/" + metamodel.name
+        "urlRoot": "."
     });        
 
     return M;
