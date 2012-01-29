@@ -77,6 +77,12 @@ modelIdKey model = "global:" ++ model ++ ":id"
 
 
 ------------------------------------------------------------------------------
+-- | Get Redis key which stores timeline for model
+modelTimeline :: String -> String
+modelTimeline model = "global:" ++ model ++ ":timeline"
+
+
+------------------------------------------------------------------------------
 -- | Get Redis handle and model instance key
 --
 -- @see getRedisDB
@@ -136,6 +142,7 @@ create = ifTop $ do
 
   -- Save new instance
   r <- liftIO $ hmset db (modelKey model newId) (fromJust j)
+  s <- liftIO $ lpush db (modelTimeline model) newId
 
   -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5:
   --
