@@ -151,7 +151,7 @@ read' = ifTop $ do
   (db, key) <- prepareRedis database
   id <- fromParam "id"
   when (null id)
-       empty
+       emptyForm
 
   r <- liftIO $ hgetall db key
   j <- fromRMultiBulk' r
