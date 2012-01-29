@@ -10,16 +10,15 @@ Backbone.sync handler snaplet with Redis storage.
 module Redbone where
 
 import Control.Applicative
-import Control.Monad
-
 import Control.Monad.Trans
+
 import Data.Aeson as A
+
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy as BZ
-import Data.ByteString.UTF8 (fromString, toString)
+
 import Data.Lens.Common
 import Data.Lens.Template
-import Data.List.Split (chunk)
 import qualified Data.Map as M
 import Data.Maybe
 
@@ -31,7 +30,8 @@ import Text.Templating.Heist
 
 import RedisDB
 import Database.Redis.Redis
-import Database.Redis.ByteStringClass
+
+import Util
 
 data Redbone = Redbone
              { _database :: Snaplet RedisDB
@@ -61,14 +61,6 @@ getModelName = fromParam "model"
 
 
 ------------------------------------------------------------------------------
--- | Get parameter value from Request or return empty string
-fromParam :: MonadSnap m => ByteString -> m String
-fromParam p = do
-  par <- fromMaybe "" <$> getParam p
-  return $ toString par
-
-
-------------------------------------------------------------------------------
 -- | Build Redis key given model name and id
 redisKey :: String -> String -> String
 redisKey modelName id = modelName ++ ":" ++ id
@@ -76,14 +68,8 @@ redisKey modelName id = modelName ++ ":" ++ id
 
 ------------------------------------------------------------------------------
 -- | Encode Redis HGETALL reply to JSON.
---
--- @todo Do list → tuples conversion better.
--- 
--- @todo ToJSON instance for ByteString.
 hgetallToJson :: [ByteString] -> BZ.ByteString
-hgetallToJson r = A.encode $ M.fromList (map pairMap $ chunk 2 r)
-    where
-      pairMap [k, v] = ((toString k), v)
+hgetallToJson r = A.encode $ M.fromList (fromPairs r)
 
 ------------------------------------------------------------------------------
 -- | Read instance from Redis.
@@ -97,8 +83,10 @@ read' = ifTop $ do
 
   putResponse resp
   -- @todo Do this with liftM
-  z <- liftM hgetallToJson $ j
-  writeLBS z
+  let
+      z = hgetallToJson j
+   in
+     writeLBS z
     where
       resp = setContentType "application/json" emptyResponse
 
