@@ -20,11 +20,16 @@
     <script src="/resources/static/js/load-model.js" />
   </head>
   <body>
-    <div class="container">
+    <div id="container">
       <h1>Заполнение формы «<span id="model-name" />»</h1>
       <form>
         <ul id="form" />
-        <input type="submit" value="Отправить" />
+        <div class="well">
+        <button class="btn" type="button"
+                onClick="FormModel.save();">Сохранить и начать новую</button>
+        <button class="btn danger" type="button"
+                style="float:right;">Удалить</button>
+        </div>
       </form>
     </div>
 
@@ -43,7 +48,8 @@
         <label>{{ field.label }}:<br />
           <input type="text"
                  class="{{ field.name }} field"
-                 name="{{ field.name }}" 
+                 name="{{ field.name }}"
+                 size="70"
                  value="{{ value }}" />
         </label>
       </li>

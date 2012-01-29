@@ -59,7 +59,7 @@ function backbonizeView(metamodel) {
         },
 
         /// Inverse mapping from view to model
-        "fromView": function() {
+        "toModel": function() {
             var newAttrs = {};
             _.each(metamodel.fields,
                    function (f) {
