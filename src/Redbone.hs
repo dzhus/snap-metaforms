@@ -11,6 +11,7 @@ module Redbone where
 
 import Control.Applicative
 import Control.Monad.Trans
+import Control.Monad.State
 
 import Data.Aeson as A
 
@@ -61,9 +62,18 @@ getModelName = fromParam "model"
 
 
 ------------------------------------------------------------------------------
--- | Build Redis key given model name and id
-redisKey :: String -> String -> String
-redisKey modelName id = modelName ++ ":" ++ id
+-- | Get Redis handle and model instance key
+--
+-- @see getRedisDB
+-- @todo WithRedis
+prepareRedis :: (MonadSnap m, MonadState app m) => Lens app (Snaplet RedisDB) -> m (Redis, String)
+prepareRedis snaplet = do
+  model <- getModelName
+  id <- fromParam "id"
+  db <- getRedisDB snaplet
+  return (db, redisKey model id)
+      where
+        redisKey modelName id = modelName ++ ":" ++ id
 
 
 ------------------------------------------------------------------------------
@@ -79,30 +89,45 @@ hgetallToJson r = A.encode $ M.fromList (fromPairs r)
 -- | Read instance from Redis.
 read' :: Handler b Redbone ()
 read' = ifTop $ do
-  model <- getModelName
-  id <- fromParam "id"
-  db <- getRedisDB database
-  r <- liftIO $ hgetall db $ redisKey model id
+  (db, key) <- prepareRedis database
+  r <- liftIO $ hgetall db key
   j <- fromRMultiBulk' r
 
-  putResponse resp
-  -- @todo Do this with liftM
-  let
-      z = hgetallToJson j
-   in
-     writeLBS z
-    where
-      resp = setContentType "application/json" emptyResponse
+  when (null j)
+      notFound
+  modifyResponse $ setContentType "application/json"
+  writeLBS (hgetallToJson j)
+
+------------------------------------------------------------------------------
+-- | Delete instance from Redis.
+delete :: Handler b Redbone ()
+delete = ifTop $ do
+  (db, key) <- prepareRedis database
+
+  -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.7
+  -- Return removed entity description when DELETE is successfull
+  r <- liftIO $ hgetall db key
+  j <- fromRMultiBulk' r
+  when (null j)
+      notFound
+
+  -- What if key gets removed between two queries?
+  r <- liftIO $ del db key
+  n <- fromRInt r
+  when (n == 0)
+       notFound
+  modifyResponse $ setContentType "application/json"
+  writeLBS (hgetallToJson j)
 
 -----------------------------------------------------------------------------
 -- | CRUD routes for models.
 routes :: HasHeist b => [(ByteString, Handler b Redbone ())]
-routes = [ ("/:model/", method GET emptyForm)
-         , ("/:model/model", method GET metamodel)
+routes = [ (":model/", method GET emptyForm)
+         , (":model/model", method GET metamodel)
            
 --         , ("/:model/", method POST create)
-         , ("/:model/:id/", method GET read')
---         , ("/:model/:id", method DELETE delete)
+         , (":model/:id", method GET read')
+         , (":model/:id", method DELETE delete)
          ]
 
 

@@ -21,6 +21,14 @@ fromParam p = do
 
 
 ------------------------------------------------------------------------------
+-- | Short-circuit MonadSnap flow with 404
+notFound :: MonadSnap m => m ()
+notFound = do
+  modifyResponse $ setResponseCode 404
+  r <- getResponse
+  finishWith r
+
+------------------------------------------------------------------------------
 -- | Transform list ["k1", "v1", .. "kn", "vn"] to
 -- [("k1", "v1"), .. ("kn", "vn")].
 --
