@@ -137,16 +137,19 @@ create = ifTop $ do
   -- describes the status of the request and refers to the new
   -- resource
   modifyResponse $ (setContentType "application/json" . setResponseCode 201)
-  -- Tell client new instance id
+  -- Tell client new instance id in response JSON.
   writeLBS $ A.encode $ M.fromList $ ("id", fromString newId):(fromJust j)
   return ()
 
 
 ------------------------------------------------------------------------------
 -- | Read instance from Redis.
-read' :: Handler b Redbone ()
+read' :: HasHeist b => Handler b Redbone ()
 read' = ifTop $ do
   (db, key) <- prepareRedis database
+  id <- fromParam "id"
+  when (null id)
+       empty
 
   r <- liftIO $ hgetall db key
   j <- fromRMultiBulk' r
