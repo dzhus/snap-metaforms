@@ -110,7 +110,11 @@ jsonToHsetall s =
     in
       case j of
         Nothing -> Nothing
-        Just m ->  Just (M.toList m)
+        Just m -> 
+             -- Omit fields with null values
+            Just (map (\(k, v) -> (k, fromJust v)) $
+                  filter (\(k, v) -> isJust v) $ 
+                  M.toList m)
 
 
 ------------------------------------------------------------------------------
