@@ -21,13 +21,24 @@ function backbonizeModel(metamodel) {
 
     var M = Backbone.Model.extend({
         "defaults": defaults,
+        "initialize": function() {
+            this.bind("change", 
+                      function () {
+                          if (!this.hasChanged("id"))
+                              this.save();
+                      },
+                      this);
+        },
         "urlRoot": "."
+        
     });        
 
     return M;
 }
 
 /// Build choice field list for use with Mustache templates
+///
+/// @todo Difference between values and option labels
 function processChoice(choice, value) {
     return _.map(choice,
                  function(c) {
@@ -46,16 +57,32 @@ function backbonizeView(metamodel) {
         "initialize": function() {
             this.render();
         },
+
+        /// Inverse mapping from view to model
+        "fromView": function() {
+            var newAttrs = {};
+            _.each(metamodel.fields,
+                   function (f) {
+                       var v = this.$(".field." + f.name).val();
+                       if (!!v )
+                           newAttrs[f.name] = v;
+                       else
+                           newAttrs[f.name] = null;
+                   });
+            this.model.set(newAttrs);
+        },
+
         
         "render": function() {
             var j = this.model.toJSON();
+            /// @todo Update only parts which have changed
             $(this.el).empty();
 
             /// @todo To dict
             var lt = $("#longtext-field-template").html();
             var tt = $("#text-field-template").html();
             var ct = $("#choice-field-template").html();
-
+            
             var contents = "";
 
             /// Pick an appropriate form widget for each metamodel
