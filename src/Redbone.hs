@@ -213,10 +213,12 @@ update = ifTop $ do
   return()
 
 ------------------------------------------------------------------------------
--- | Delete instance from Redis.
+-- | Delete instance from Redis (including timeline).
 delete :: Handler b Redbone ()
 delete = ifTop $ do
   (db, key) <- prepareRedis database
+  id <- getModelId
+  model <- getModelName
 
   -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.7
   --
@@ -227,7 +229,8 @@ delete = ifTop $ do
   when (null j)
       notFound
 
-  -- What if key gets removed between two queries?
+  -- @todo What if key gets removed between two queries?
+  r <- liftIO $ lrem db (modelTimeline model) 1 id
   r <- liftIO $ del db key
   n <- fromRInt r
   when (n == 0)
