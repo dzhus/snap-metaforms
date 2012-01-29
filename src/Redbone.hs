@@ -68,8 +68,12 @@ redisKey modelName id = modelName ++ ":" ++ id
 
 ------------------------------------------------------------------------------
 -- | Encode Redis HGETALL reply to JSON.
+--
+-- @internal Note using explicit ByteString type over BS s as
+-- suggested by redis because BS s doesn't imply ToJSON s
 hgetallToJson :: [ByteString] -> BZ.ByteString
 hgetallToJson r = A.encode $ M.fromList (fromPairs r)
+
 
 ------------------------------------------------------------------------------
 -- | Read instance from Redis.
