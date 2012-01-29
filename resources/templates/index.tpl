@@ -29,26 +29,31 @@
     </div>
 
     <script type="text/template" id="longtext-field-template">
-      <li>
+      <li class="{{ field.name }} item">
         <label>{{ field.label }}:<br />
-          <textarea name="{{ field.name }}" rows="7" cols="70">{{ value }}</textarea>
+          <textarea class="{{ field.name }} field" 
+                    name="{{ field.name }}" 
+                    rows="7" cols="70">{{ value }}</textarea>
         </label>
       </li>
     </script>
 
     <script type="text/template" id="text-field-template">
-      <li>
+      <li class="{{ field.name }} item">
         <label>{{ field.label }}:<br />
-          <input type="text" name="{{ field.name }}" 
+          <input type="text"
+                 class="{{ field.name }} field"
+                 name="{{ field.name }}" 
                  value="{{ value }}" />
         </label>
       </li>
     </script>
 
     <script type="text/template" id="choice-field-template">
-      <li>
+      <li class="{{ field.name }} item">
         <label>{{ field.label }}:<br />
-          <select name="{{ field.name }}">
+          <select class="{{ field.name }} field"
+                  name="{{ field.name }}">
             {{# choice }}
             <option value="{{ value }}" 
                     {{# selected }}selected{{/ selected }}>
