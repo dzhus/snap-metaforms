@@ -21,12 +21,22 @@ fromParam p = do
 
 
 ------------------------------------------------------------------------------
--- | Short-circuit MonadSnap flow with 404
+-- | Short-circuit MonadSnap flow with 404 Not found
 notFound :: MonadSnap m => m ()
 notFound = do
   modifyResponse $ setResponseCode 404
   r <- getResponse
   finishWith r
+
+
+------------------------------------------------------------------------------
+-- | Short-circuit MonadSnap flow with 500 Server error
+serverError :: MonadSnap m => m ()
+serverError = do
+  modifyResponse $ setResponseCode 500
+  r <- getResponse
+  finishWith r
+
 
 ------------------------------------------------------------------------------
 -- | Transform list ["k1", "v1", .. "kn", "vn"] to
@@ -39,5 +49,3 @@ toPairs l =
         where
           toPairs' [] d = d
           toPairs' (k:(v:t)) d = toPairs' t (d ++ [(k, v)])
-
-

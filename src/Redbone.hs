@@ -16,7 +16,8 @@ import Control.Monad.State
 import Data.Aeson as A
 
 import Data.ByteString (ByteString)
-import qualified Data.ByteString.Lazy as BZ
+import qualified Data.ByteString.Lazy as BZ (ByteString)
+import Data.ByteString.UTF8 (fromString)
 
 import Data.Lens.Common
 import Data.Lens.Template
@@ -62,6 +63,18 @@ getModelName = fromParam "model"
 
 
 ------------------------------------------------------------------------------
+-- | Build Redis key given model name and id
+modelKey :: String -> String -> String
+modelKey model id = model ++ ":" ++ id
+
+
+------------------------------------------------------------------------------
+-- | Get Redis key which stores id counter for model
+modelIdKey :: String -> String
+modelIdKey model = "global:" ++ model ++ ":id"
+
+
+------------------------------------------------------------------------------
 -- | Get Redis handle and model instance key
 --
 -- @see getRedisDB
@@ -71,13 +84,11 @@ prepareRedis snaplet = do
   model <- getModelName
   id <- fromParam "id"
   db <- getRedisDB snaplet
-  return (db, redisKey model id)
-      where
-        redisKey modelName id = modelName ++ ":" ++ id
+  return (db, modelKey model id)
 
 
 ------------------------------------------------------------------------------
--- | Encode Redis HGETALL reply to JSON.
+-- | Encode Redis HGETALL reply to ByteString with JSON.
 --
 -- @internal Note using explicit ByteString type over BS s as
 -- suggested by redis because BS s doesn't imply ToJSON s
@@ -85,6 +96,50 @@ hgetallToJson :: [ByteString] -> BZ.ByteString
 hgetallToJson r = A.encode $ M.fromList (toPairs r)
 
 
+------------------------------------------------------------------------------
+-- | Decode ByteString with JSON to list of hash keys & values for
+-- Redis HMSET
+--
+-- @return Nothing if parsing failed
+jsonToHsetall :: BZ.ByteString -> Maybe [(ByteString, ByteString)]
+jsonToHsetall s =
+    let
+        j = A.decode s
+    in
+      case j of
+        Nothing -> Nothing
+        Just m ->  Just (M.toList m)
+
+
+------------------------------------------------------------------------------
+-- | Create new instance in Redis.
+create :: Handler b Redbone ()
+create = ifTop $ do
+  -- Parse request body to list of pairs
+  -- @todo Use readRequestBody
+  j <- jsonToHsetall <$> getRequestBody
+  when (isNothing j)
+       serverError
+
+  db <- getRedisDB database
+
+  -- Take id from global:model:id
+  model <- getModelName
+  r <- liftIO $ incr db $ modelIdKey model
+  newId <- show <$> fromRInt r
+
+  -- Save new instance
+  r <- liftIO $ hmset db (modelKey model newId) (fromJust j)
+
+  -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5:
+  --
+  -- the response SHOULD be 201 (Created) and contain an entity which
+  -- describes the status of the request and refers to the new
+  -- resource
+  modifyResponse $ (setContentType "application/json" . setResponseCode 201)
+  -- Tell client new instance id
+  writeLBS $ A.encode $ M.fromList $ ("id", fromString newId):(fromJust j)
+  return ()
 
 
 ------------------------------------------------------------------------------
@@ -92,13 +147,15 @@ hgetallToJson r = A.encode $ M.fromList (toPairs r)
 read' :: Handler b Redbone ()
 read' = ifTop $ do
   (db, key) <- prepareRedis database
+
   r <- liftIO $ hgetall db key
   j <- fromRMultiBulk' r
-
   when (null j)
       notFound
+
   modifyResponse $ setContentType "application/json"
   writeLBS (hgetallToJson j)
+
 
 ------------------------------------------------------------------------------
 -- | Delete instance from Redis.
@@ -107,7 +164,9 @@ delete = ifTop $ do
   (db, key) <- prepareRedis database
 
   -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.7
-  -- Return removed entity description when DELETE is successfull
+  --
+  -- A successful response SHOULD be 200 (OK) if the response includes
+  -- an entity describing the status
   r <- liftIO $ hgetall db key
   j <- fromRMultiBulk' r
   when (null j)
@@ -118,8 +177,10 @@ delete = ifTop $ do
   n <- fromRInt r
   when (n == 0)
        notFound
+
   modifyResponse $ setContentType "application/json"
   writeLBS (hgetallToJson j)
+
 
 -----------------------------------------------------------------------------
 -- | CRUD routes for models.
@@ -127,7 +188,7 @@ routes :: HasHeist b => [(ByteString, Handler b Redbone ())]
 routes = [ (":model/", method GET emptyForm)
          , (":model/model", method GET metamodel)
            
---         , ("/:model/", method POST create)
+         , (":model", method POST create)
          , (":model/:id", method GET read')
          , (":model/:id", method DELETE delete)
          ]
