@@ -7,7 +7,9 @@ Backbone.sync handler snaplet with Redis storage.
 
 -}
 
-module Redbone where
+module Redbone (Redbone
+               , redboneInit)
+where
 
 import Control.Applicative
 import Control.Monad.Trans

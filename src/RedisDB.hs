@@ -6,8 +6,9 @@ Redis DB snaplet.
 
 -}
 
-module RedisDB
-
+module RedisDB (RedisDB
+                , getRedisDB
+                , redisDBInit)
 where
 
 import qualified Control.Category as C ((.))
