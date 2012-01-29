@@ -20,6 +20,20 @@ $(function () {
           });
 });
 
+function refreshTimeline() {
+    $.get("timeline/",
+          function(data) {
+              var contents = "";
+              var tpl = $("#timeline-item").html();
+
+              _.each(data, function (v) {
+                  contents += Mustache.render(tpl, {"value": v});
+              });
+                  
+              $("#timeline").html(contents);
+          });                         
+}
+
 /// Clean form and rebind it to new model
 function flushForm() {
     FormModel = new metaM;
@@ -42,3 +56,12 @@ function proceed() {
     FormModel.save();
     flushForm();
 }
+
+/// Save current model and start fresh form
+function restore(id) {
+    FormModel = new metaM({"id": id});
+    FormView.rebind(FormModel);
+    FormView.render();
+}
+
+

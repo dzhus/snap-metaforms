@@ -24,9 +24,7 @@
       <div class="block">
         <span id="message" />
       </div>
-      <div class="block">
-        <ul id="timeline" />
-      </div>
+      <div class="block" id="timeline" />
     </div>
 
     <div id="container" class="block">
@@ -78,6 +76,10 @@
           </select>
         </label>
       </li>
+    </script>
+
+    <script type="text/template" id="timeline-item">
+      <span onClick="restore({{ value }});">{{ value }} </span>
     </script>
   </body>
 </html>
