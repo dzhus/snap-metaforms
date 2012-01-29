@@ -1,12 +1,17 @@
-.container {
+/*
+  Based on Bootstrap CSS framework
+  Copyright 2011 Twitter, Inc.
+*/
+
+#container {
   margin-left: 20%;
-  width: 60%;
+  width: 50%;
 }
 
 label {
   font-size: smaller;
   text-align: right;
-  color: #404040;
+  color: #333;
 }
 
 input,
@@ -14,7 +19,7 @@ textarea,
 select {
   padding: 4px;
   font-size: 13px;
-  color: #808080;
+  background-color: white;
   border: 1px solid #ccc;
   border-radius: 3px;
 }
@@ -24,3 +29,58 @@ input:focus, textarea:focus {
   border-color: rgba(82, 168, 236, 0.8);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 8px rgba(82, 168, 236, 0.6);
 }  
+
+.well {
+  background-color: #f5f5f5;
+  margin-bottom: 20px;
+  padding: 19px;
+  min-height: 20px;
+  border: 1px solid #eee;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.btn.danger,
+.btn.success,
+.btn.info {
+  color: #ffffff;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.btn.danger {
+  background-color: #c43c35;
+  background-repeat: repeat-x;
+  background-image: -moz-linear-gradient(top, #ee5f5b, #c43c35);
+  border-color: #c43c35 #c43c35 #882a25;
+}
+
+.btn.success {
+  background-color: #57a957;
+  background-repeat: repeat-x;
+  background-image: -moz-linear-gradient(top, #62c462, #57a957);
+  border-color: #57a957 #57a957 #3d773d;
+}
+
+.btn.info {
+  background-color: #339bb9;
+  background-repeat: repeat-x;
+  background-image: -moz-linear-gradient(top, #5bc0de, #339bb9);
+  border-color: #339bb9 #339bb9 #22697d;
+}
+
+.btn {
+  cursor: pointer;
+  display: inline-block;
+  background-color: #e6e6e6;
+  background-repeat: no-repeat;
+  background-image: -moz-linear-gradient(top, #ffffff, #ffffff 25%, #e6e6e6);
+  padding: 5px 14px 6px;
+  color: #333;
+  font-size: 13px;
+  line-height: normal;
+  border: 1px solid #ccc;
+  border-bottom-color: #bbb;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
