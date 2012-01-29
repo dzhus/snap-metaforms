@@ -20,16 +20,25 @@
     <script src="/resources/static/js/load-model.js" />
   </head>
   <body>
-    <div id="container">
+    <div id="sidebar">
+      <div class="block">
+        <span id="message" />
+      </div>
+      <div class="block">
+        <ul id="timeline" />
+      </div>
+    </div>
+
+    <div id="container" class="block">
       <h1>Заполнение формы «<span id="model-name" />»</h1>
+      <div id="message" style="display: none;" />
       <form>
         <ul id="form" />
-        <div class="well">
         <button class="btn" type="button"
-                onClick="FormModel.save();">Сохранить и начать новую</button>
+                onClick="proceed();">Сохранить и начать новую</button>
         <button class="btn danger" type="button"
-                style="float:right;">Удалить</button>
-        </div>
+                style="float:right;"
+                onClick="remove();">Удалить</button>
       </form>
     </div>
 

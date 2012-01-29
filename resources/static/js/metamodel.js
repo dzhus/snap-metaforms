@@ -22,15 +22,20 @@ function backbonizeModel(metamodel) {
     var M = Backbone.Model.extend({
         "defaults": defaults,
         "initialize": function() {
-            this.bind("change", 
-                      function () {
-                          if (!this.hasChanged("id"))
-                              this.save();
-                      },
-                      this);
+            var furtherUpdates = function () {
+                /// Do not resave model when id is set after
+                /// first POST
+                if (!this.hasChanged("id"))
+                    this.save();
+            };
+
+            /// Populate model from storage
+            if (!this.isNew())
+                this.fetch();
+            else
+                this.bind("change", furtherUpdates, this);
         },
         "urlRoot": "."
-        
     });        
 
     return M;
@@ -47,9 +52,7 @@ function processChoice(choice, value) {
 }
 
 /// Backbonize a metamodel, producing a view which renders associated
-/// Backbone model to form
-///
-/// @param context Dictionary with keys `name` and `value`
+/// Backbone model to form and vice versa.
 /// 
 /// @return Constructor of Backbone view
 function backbonizeView(metamodel) {
@@ -71,8 +74,12 @@ function backbonizeView(metamodel) {
                    });
             this.model.set(newAttrs);
         },
-
         
+        "rebind": function(model) {
+            this.model = model;
+            this.render();
+        },
+
         "render": function() {
             var j = this.model.toJSON();
             /// @todo Update only parts which have changed
@@ -108,6 +115,7 @@ function backbonizeView(metamodel) {
             /// @todo Unbreak my XML
             $(this.el).html(contents);
         }});
+
 
     return V;
 }
