@@ -51,7 +51,7 @@ emptyForm = ifTop $ render "index"
 
 
 ------------------------------------------------------------------------------
--- | Get JSON metamodel.
+-- | Serve JSON metamodel.
 metamodel :: Handler b Redbone ()
 metamodel = ifTop $ do
   modelName <- getModelName
@@ -62,6 +62,12 @@ metamodel = ifTop $ do
 -- | Extract model name from request path parameter.
 getModelName:: MonadSnap m => m String
 getModelName = fromParam "model"
+
+
+------------------------------------------------------------------------------
+-- | Extract model id from request parameter.
+getModelId:: MonadSnap m => m String
+getModelId= fromParam "id"
 
 
 ------------------------------------------------------------------------------
@@ -90,7 +96,7 @@ modelTimeline model = "global:" ++ model ++ ":timeline"
 prepareRedis :: (MonadSnap m, MonadState app m) => Lens app (Snaplet RedisDB) -> m (Redis, String)
 prepareRedis snaplet = do
   model <- getModelName
-  id <- fromParam "id"
+  id <- getModelId
   db <- getRedisDB snaplet
   return (db, modelKey model id)
 
@@ -174,6 +180,25 @@ read' = ifTop $ do
 
 
 ------------------------------------------------------------------------------
+-- | Serve list of 10 latest instances stored in Redis.
+--
+-- @todo Adjustable item limit.
+timeline :: HasHeist b => Handler b Redbone ()
+timeline = ifTop $ do
+  (db, key) <- prepareRedis database
+  model <- getModelName
+
+  r <- liftIO $ lrange db (modelTimeline model) (0, 9)
+  j <- fromRMultiBulk' r
+
+  modifyResponse $ setContentType "application/json"
+  writeLBS (enc' j)
+    where
+      enc' :: [ByteString] -> BZ.ByteString
+      enc' j = A.encode j
+
+
+------------------------------------------------------------------------------
 -- | Update existing instance in Redis.
 update :: Handler b Redbone ()
 update = ifTop $ do
@@ -217,7 +242,7 @@ delete = ifTop $ do
 routes :: HasHeist b => [(ByteString, Handler b Redbone ())]
 routes = [ (":model/", method GET emptyForm)
          , (":model/model", method GET metamodel)
-           
+         , (":model/timeline", method GET timeline)
          , (":model", method POST create)
          , (":model/:id", method GET read')
          , (":model/:id", method PUT update)
