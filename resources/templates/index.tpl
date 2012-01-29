@@ -21,7 +21,7 @@
   </head>
   <body>
     <div class="container">
-      <h1>Заполнение формы</h1>
+      <h1>Заполнение формы «<span id="model-name" />»</h1>
       <form>
         <ul id="form" />
         <input type="submit" value="Отправить" />

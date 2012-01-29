@@ -7,7 +7,7 @@ $(function () {
                   
               var M = backbonizeModel(metamodel);
               var V = backbonizeView(metamodel);
-              
+              $("#model-name").append(metamodel.name);
               obj = new M;
               view = new V({"el": $("#form"), "model": obj});
               view.render();
