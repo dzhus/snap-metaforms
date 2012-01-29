@@ -117,9 +117,9 @@ jsonToHsetall s =
       case j of
         Nothing -> Nothing
         Just m -> 
-             -- Omit fields with null values
+             -- Omit fields with null values and "id" key
             Just (map (\(k, v) -> (k, fromJust v)) $
-                  filter (\(k, v) -> isJust v) $ 
+                  filter (\(k, v) -> (isJust v && k /= "id")) $
                   M.toList m)
 
 
@@ -174,6 +174,20 @@ read' = ifTop $ do
 
 
 ------------------------------------------------------------------------------
+-- | Update existing instance in Redis.
+update :: Handler b Redbone ()
+update = ifTop $ do
+  j <- jsonToHsetall <$> getRequestBody
+  when (isNothing j)
+       serverError
+
+  (db, key) <- prepareRedis database
+  -- @todo Report 201 if previously existed
+  r <- liftIO $ hmset db key (fromJust j)
+  modifyResponse $ setResponseCode 204
+  return()
+
+------------------------------------------------------------------------------
 -- | Delete instance from Redis.
 delete :: Handler b Redbone ()
 delete = ifTop $ do
@@ -206,6 +220,7 @@ routes = [ (":model/", method GET emptyForm)
            
          , (":model", method POST create)
          , (":model/:id", method GET read')
+         , (":model/:id", method PUT update)
          , (":model/:id", method DELETE delete)
          ]
 
