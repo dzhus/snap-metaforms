@@ -33,9 +33,11 @@ notFound = do
 -- [("k1", "v1"), .. ("kn", "vn")].
 --
 -- We use this to process Redis hgetall reply.
-fromPairs :: BS s => [s] -> [(s, s)]
-fromPairs l = 
-    fromPairs' l []
+toPairs :: BS s => [s] -> [(s, s)]
+toPairs l = 
+    toPairs' l []
         where
-          fromPairs' [] d = d
-          fromPairs' (k:(v:t)) d = fromPairs' t (d ++ [(k, v)])
+          toPairs' [] d = d
+          toPairs' (k:(v:t)) d = toPairs' t (d ++ [(k, v)])
+
+

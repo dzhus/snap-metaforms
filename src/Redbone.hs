@@ -82,7 +82,9 @@ prepareRedis snaplet = do
 -- @internal Note using explicit ByteString type over BS s as
 -- suggested by redis because BS s doesn't imply ToJSON s
 hgetallToJson :: [ByteString] -> BZ.ByteString
-hgetallToJson r = A.encode $ M.fromList (fromPairs r)
+hgetallToJson r = A.encode $ M.fromList (toPairs r)
+
+
 
 
 ------------------------------------------------------------------------------
