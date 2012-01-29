@@ -6,15 +6,15 @@
     <link rel="stylesheet" href="/resources/static/css/main.css" />
 
     <!-- DOM manipulation -->
-    <script src="/resources/static/js/jquery-1.7.1.min.js" />
+    <script src="/resources/static/js/thirdparty/jquery-1.7.1.min.js" />
 
     <!-- Utility library, Backbone dependency -->
-    <script src="/resources/static/js/underscore-min.js" />
+    <script src="/resources/static/js/thirdparty/underscore-min.js" />
     <!-- Loose MVC -->
-    <script src="/resources/static/js/backbone-min.js" />
+    <script src="/resources/static/js/thirdparty/backbone-min.js" />
 
     <!-- Simple templates -->
-    <script src="/resources/static/js/mustache.js" />
+    <script src="/resources/static/js/thirdparty/mustache.js" />
 
     <script src="/resources/static/js/metamodel.js" />
     <script src="/resources/static/js/load-model.js" />
