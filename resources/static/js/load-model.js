@@ -25,7 +25,8 @@ function refreshTimeline() {
               var tpl = $("#timeline-item").html();
 
               _.each(data, function (v) {
-                  contents += Mustache.render(tpl, {"value": v});
+                  contents += Mustache.render(tpl, {"sel": v == FormView.model.id,
+                                                    "value": v});
               });
                   
               $("#timeline").html(contents);
@@ -58,7 +59,7 @@ function setupView(model) {
         FormView.model.unbind("change", fetchCallback);
     }
     FormView.model.bind("change", fetchCallback);
-
+    refreshTimeline();
 }
 
 /// Save current model and start fresh form
@@ -74,5 +75,8 @@ function restore(id) {
     setupView(new metaM({"id": String(id)}));
 }
 
-
-
+function remove(id) {
+    FormView.model.destroy();
+    forgetView();
+    setupView(new metaM);
+} 

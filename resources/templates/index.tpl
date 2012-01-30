@@ -79,7 +79,7 @@
     </script>
 
     <script type="text/template" id="timeline-item">
-      <span onClick="restore({{ value }});">{{ value }} </span>
+      <span class="btn{{# sel }} info{{/ sel }}" onClick="restore({{ value }});">{{ value }} </span>
     </script>
   </body>
 </html>
