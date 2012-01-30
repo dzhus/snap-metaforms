@@ -18,6 +18,7 @@ $(function () {
           });
 });
 
+/// Show recently created models, highlight the currently loaded one
 function refreshTimeline() {
     $.get("timeline/",
           function(data) {
@@ -47,19 +48,27 @@ function setupView(model) {
                           "model": model});
     refreshTimeline();
 
-    /// Postpone first (and only) form render until model.fetch()
-    /// populates fields. After that, establish inverse mapping from
-    /// form to model.
-    var fetchCallback;
-    fetchCallback = function () {
-        FormView.render();
+    function setModelUpdater () {
         FormView.updater = window.setInterval(
             function () {
                 FormView.toModel();
             }, 2000);
+    };
+
+    /// If model is not new, postpone first (and only) form render
+    /// until model.fetch() populates fields (otherwise model updater
+    /// will flush the fields since the form is empty). After that,
+    /// establish inverse mapping from form to model.
+    var fetchCallback;
+    function fetchCallback () {
+        FormView.render();
+        setModelUpdater();
         FormView.model.unbind("change", fetchCallback);
-    }
-    FormView.model.bind("change", fetchCallback);
+    };
+    if (!FormView.model.isNew())
+        FormView.model.bind("change", fetchCallback);
+    else
+        setModelUpdater();
 }
 
 /// Save current model and start fresh form
@@ -75,6 +84,7 @@ function restore(id) {
     setupView(new metaM({"id": String(id)}));
 }
 
+/// Remove currently loaded model from storage and start fresh form
 function remove(id) {
     FormView.model.destroy();
     forgetView();
