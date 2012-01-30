@@ -45,6 +45,7 @@ function forgetView() {
 function setupView(model) {
     FormView = new metaV({"el": $("#form"), 
                           "model": model});
+    refreshTimeline();
 
     /// Postpone first (and only) form render until model.fetch()
     /// populates fields. After that, establish inverse mapping from
@@ -59,7 +60,6 @@ function setupView(model) {
         FormView.model.unbind("change", fetchCallback);
     }
     FormView.model.bind("change", fetchCallback);
-    refreshTimeline();
 }
 
 /// Save current model and start fresh form
