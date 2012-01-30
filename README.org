@@ -1,0 +1,248 @@
+#+SEQ_TODO: MAYBE SOMEDAY BLOCKED TODO WAITING(!) | DONE
+
+* Overview
+  We provide generic CRUD for forms, which are defined as collections
+  of fields of different types. Redis is used to store forms on
+  server. Templating is done completely on client side using
+  JavaScript.
+
+** Metamodels
+
+   Form definitions (metamodels) use JSON syntax and basically
+   enumerate fields present in the form. Homebrew basic type system is
+   used (currently view widget for field is rendered with regard to
+   field type; form validation, when implemented, could use type
+   information as well).
+
+   Required object fields for metamodel are "name" (readable form
+   name) and "fields", which is in turn a list of field objects with
+   "name", "type" and "label" fields. "choice" list is required for
+   form fields of type "fieldType.choice". "default" optionally
+   defines default value for field.
+
+   Metamodels are stored in ".js" files under
+   "resources/static/js/models/" directory.
+
+*** Valid types
+    
+    Types available for metamodels are defined in
+    "resources/static/js/metamodel.js" in "fieldType" enumeration.
+    
+*** Sample form definition
+    (As described in [[http://scp-wiki.wikidot.com/][The SCP Foundation]] archives)
+    
+    #+BEGIN_SRC javascript
+      ({
+          "name": "SCP",
+          "fields": [
+              {
+                  "name": "code",
+                  "type": fieldType.number,
+                  "label": "Code",
+              },
+              {
+                  "name": "title",
+                  "type": fieldType.text,
+                  "label": "Title",
+              },
+              {
+                  "name": "foundAt",
+                  "type": fieldType.text,
+                  "label": "Original location",
+              },
+              {
+                  "name": "class",
+                  "type": fieldType.choice,
+                  "default": "Euclid",
+                  "choice": ["Safe", "Euclid", "Keter"],
+                  "label": "Object class"
+              },
+              {
+                  "name": "conditions",
+                  "type": fieldType.longText,
+                  "label": "Special Containment Procedures"
+              },
+              {
+                  "name": "description",
+                  "type": fieldType.longText,
+                  "label": "Description"
+              }
+          ]
+      })
+      
+    #+END_SRC
+
+    Consider this metamodel is stored in "scp.js" file; then filename
+    without extension ("scp") is used in URL to access forms built
+    from this metamodel.
+
+** Frontend
+   
+   Our frontend code uses form defintion to build form model and view.
+   [[http://documentcloud.github.com/backbone/][Backbone]] JavaScript framework is used to implement binding model to
+   view and making automatic server requests to restore/save form
+   instance on server (see "/resources/static/js/metamodel.js"). Upon
+   loading the page, metamodel JSON is requested from server, and
+   processed into Backbone model and view definitions. Backbone model
+   provides fetch(), save() and destroy() methods which result in
+   appropriate requests being sent to server.
+
+   View's render function uses [[https://github.com/janl/mustache.js][Mustache.js]] coupled with templates
+   served along with index HTML page to show HTML form.
+
+   View is capable of inverse mapping from view to model, which is
+   performed every 2 seconds to assure that model changes as user
+   types in form contents. Since Backbone model has save() method
+   bound to its "change" event, this results in form state being
+   constantly saved to server.
+
+   "/resource/static/js/load-model.js" provides utility functions to
+   instantiate Backbone model & view for form, as well as selecting
+   different form or calling its remove() method, which sends a delete
+   request to server.
+
+** CRUD
+   
+   We implement generic CRUD for our forms using Redbone snaplet,
+   which is best explained by its routes, installed in top-level
+   snaplet under "/rb" URL.
+
+   "/rb/<formid>/" serves title page (which is in fact the same for
+   any <formid>) with all the code required to process metamodels on
+   client side. Client JavaScript further requests metamodel
+   description in bare JSON using "/rb/<formid>/model/" URL, from
+   which the server picks "<formid>.js" metamodel and sends it back to
+   client.
+
+   All interactions with server use JSON as primary format, which is
+   what Backbone uses by default for fetch(), save() and destroy()
+   model methods, sending JSON with actual form contents to server,
+   which maps them to Redis hashes stored under "<modelname>:<id>"
+   key. Fresh id's are provided by using "global:<modelname>:<id>" key
+   which is INCR-ed after every new form instance is created in
+   database.
+   
+   No schema checking is performed by server, so in case the metamodel
+   changes and our client starts sending/expecting JSON with different
+   fields, nothing breaks.
+
+   CRUD mapping to HTTP methods is implemented in Redbone as expected
+   by Backbone:
+
+   CREATE → POST /<formid>
+   READ → GET /<formid>/<instanceid>/
+   UPDATE → PUT /<formid>/<instanceid>/
+   DELETE → DELETE /<formid>/<instanceid>/
+
+*** Server interface by example
+    
+    Assume we're using "scp.js" metamodel given above.
+
+**** CREATE
+     
+     Server request:
+
+     : curl localhost:8000/rb/scp/ -X POST -d "{\"title\":\"Able\", \"code\":\"076\", \"class\":\"Keter\"}"
+
+     What server did in Redis:
+
+     : incr global:scp:id
+     
+     (24 is returned)
+     
+     : hmset scp:24 code 076 title Able class Keter
+
+     Server response:
+
+     : {"code":"076","id":"24","title":"Able","class":"Keter"}
+
+     (note the "id" field which is returned by server after Redis was
+     updated with new form instance. Backbone stores new instance id
+     upon receiving server response and uses it in further server
+     requests for saving updated model instance)
+
+**** READ
+
+     Server request:
+
+     : curl localhost:8000/rb/scp/24/ -X GET
+
+     Server response:
+
+     : {"code":"076","title":"Able","class":"Keter"}
+
+     Redis command used:
+
+     : hgetall scp:24
+
+**** UPDATE
+
+     What is sent to server:
+
+     : curl localhost:8000/rb/scp/24/ -X PUT -d "{\"title\":\"Able\", \"code\":\"076-2\", \"class\":\"Keter\", \"description\":\"Really nasty thing\"}"
+
+     Server response is 204 (success, No content) in case the instance
+     previously existed and 404 if not.
+
+     Note that the all model fields are sent to server (this may be
+     improved for efficiency).
+
+**** DELETE
+
+     Server request:
+
+     : curl localhost:8000/rb/scp/24/ -X DELETE
+
+     Redis deletes the key:
+
+     : del scp:24
+
+     Server response contains JSON of instance before deletion:
+
+     : {"code":"076-2","title":"Able","description":"Really nasty thing","class":"Keter"}
+
+
+*** Timeline
+
+    There's an extra entity stored in Redis for every metamodel called
+    timeline, which is a list with id's of instances stored in DB
+    (ordered by creation data).
+
+    "/rb/scp/timeline" serves JSON list of last N (currently 10)
+    timeline items for metamodel "scp":
+
+    : curl localhost:8000/rb/scp/timeline/ -X GET
+    : ["39","38","37","36","35","34","33","32","31","30"]
+
+    If instance is removed from Redis, corresponding timeline entry is
+    removed as well.
+
+    Client front-end uses timeline to show links to fresh instances.
+     
+* Work in progress
+
+** Snap
+*** BLOCKED Routing bug
+    Snap fails to properly route requests to "/foo/bar/" if it's
+    shadowed by "/foo/bar/:baz" route even if ":baz" variable capture
+    fails: https://github.com/snapframework/snap-core/issues/120
+
+    Currently we have to use a workaround to correctly direct
+    "/rb/<formname>/" requests to emptyPage handler by checking "id"
+    parameter value in read handler.
+    
+*** TODO Aeson
+    Snap 0.7 requires Aeson 0.4, while we require 0.6 version. This
+    results in both Aeson version being compiled into app binary, also
+    it's impossible to install the application using "cabal install".
+    
+*** MAYBE CRUD efficiency
+    Backbone provides means of expecting which model fields really
+    changed upon "change" event. Perhaps we can use it to include only
+    changed fields in JSON sent to server upon model updates.
+    
+** Redis
+*** TODO Expose [[http://hackage.haskell.org/packages/archive/redis/latest/doc/html/Database-Redis-Monad.html][monadic interface]] to snaplets using RedisDB.
+*** SOMEDAY Release RedisDB as a separate snaplet
+** Metamodels
+*** TODO Perhaps use [[https://github.com/kmalakoff/knockback][Knockback]] to bind view with models instead of custom code.
