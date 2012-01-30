@@ -22,16 +22,16 @@ function backbonizeModel(metamodel) {
     var M = Backbone.Model.extend({
         "defaults": defaults,
         "initialize": function() {
+            var furtherUpdates = function () {
+                /// Do not resave model when id is set after
+                /// first POST
+                if (!this.hasChanged("id"))
+                    this.save();
+            };
+
             /// Populate model from storage and start auto-saving to
             /// storage after first fetch() finished.
             if (!this.isNew()) {
-                var furtherUpdates = function () {
-                    /// Do not resave model when id is set after
-                    /// first POST
-                    if (!this.hasChanged("id"))
-                        this.save();
-                };
-
                 var fetchCallback;
                 fetchCallback = function() {
                     this.unbind("change", fetchCallback);
