@@ -1,10 +1,11 @@
 #+SEQ_TODO: MAYBE SOMEDAY BLOCKED TODO WAITING(!) | DONE
 
 * Overview
-  We provide generic CRUD for forms, which are defined as collections
-  of fields of different types. Redis is used to store forms on
-  server. Templating is done completely on client side using
-  JavaScript.
+  We provide generic CRUD web interface for forms, which are defined
+  as collections of fields of different types. Redis is used to store
+  forms on server. Templating is done completely on client side using
+  JavaScript. Server part may be separately to store any JSON data in
+  Redis hashes.
 
 ** Metamodels
 
