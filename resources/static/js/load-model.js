@@ -11,12 +11,10 @@ $(function () {
               
               $("#model-name").append(metamodel.name);
 
-              FormModel = new metaM;
-              FormView = new metaV({"tagName": "sx", "el": $("#form"), "model": FormModel});
-              FormUpdater = window.setInterval(
-                  function () {
-                      FormView.toModel();
-                  }, 2000);
+              setupView(new metaM);
+
+              refreshTimeline();
+              TimelineUpdater = window.setInterval(refreshTimeline, 5000);
           });
 });
 
@@ -34,34 +32,47 @@ function refreshTimeline() {
           });                         
 }
 
-/// Clean form and rebind it to new model
-function flushForm() {
-    FormModel = new metaM;
-    /// @todo Perhaps we should destroy this view and create new one
-    /// from scratch.
-    FormView.rebind(FormModel);
+/// Delete view, unset updater
+///
+/// @todo Refactor so that no explicit clearInterval calls are needed.
+function forgetView() {
+    window.clearInterval(FormView.updater);
+    FormView.remove();
 }
 
-/// Remove current model from storage
-function remove() {
-    if (!FormModel.isNew())
-    {
-        FormModel.destroy();
-        flushForm();
+/// Create form for model
+function setupView(model) {
+    FormView = new metaV({"el": $("#form"), 
+                          "model": model});
+
+    /// Postpone first (and only) form render until model.fetch()
+    /// populates fields. After that, establish inverse mapping from
+    /// form to model.
+    var fetchCallback;
+    fetchCallback = function () {
+        FormView.render();
+        FormView.updater = window.setInterval(
+            function () {
+                FormView.toModel();
+            }, 2000);
+        FormView.model.unbind("change", fetchCallback);
     }
+    FormView.model.bind("change", fetchCallback);
+
 }
 
 /// Save current model and start fresh form
 function proceed() {
-    FormModel.save();
-    flushForm();
+    FormView.model.save();
+    forgetView();
+    setupView(new metaM);
 }
 
 /// Save current model and start fresh form
 function restore(id) {
-    FormModel = new metaM({"id": id});
-    FormView.rebind(FormModel);
-    FormView.render();
+    forgetView();
+    setupView(new metaM({"id": String(id)}));
 }
+
 
 

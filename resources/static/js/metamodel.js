@@ -22,16 +22,24 @@ function backbonizeModel(metamodel) {
     var M = Backbone.Model.extend({
         "defaults": defaults,
         "initialize": function() {
-            var furtherUpdates = function () {
-                /// Do not resave model when id is set after
-                /// first POST
-                if (!this.hasChanged("id"))
-                    this.save();
-            };
+            /// Populate model from storage and start auto-saving to
+            /// storage after first fetch() finished.
+            if (!this.isNew()) {
+                var furtherUpdates = function () {
+                    /// Do not resave model when id is set after
+                    /// first POST
+                    if (!this.hasChanged("id"))
+                        this.save();
+                };
 
-            /// Populate model from storage
-            if (!this.isNew())
+                var fetchCallback;
+                fetchCallback = function() {
+                    this.unbind("change", fetchCallback);
+                    this.bind("change", furtherUpdates);
+                }
+                this.bind("change", fetchCallback);
                 this.fetch();
+            }            
             else
                 this.bind("change", furtherUpdates, this);
         },
@@ -74,12 +82,7 @@ function backbonizeView(metamodel) {
                    });
             this.model.set(newAttrs);
         },
-        
-        "rebind": function(model) {
-            this.model = model;
-            this.render();
-        },
-
+ 
         "render": function() {
             var j = this.model.toJSON();
             /// @todo Update only parts which have changed
@@ -114,7 +117,12 @@ function backbonizeView(metamodel) {
 
             /// @todo Unbreak my XML
             $(this.el).html(contents);
-        }});
+        },
+        
+        "remove": function() {
+            $(this.el).empty();
+        }
+    });
 
 
     return V;
