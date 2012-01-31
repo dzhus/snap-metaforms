@@ -207,7 +207,7 @@
 
     There's an extra entity stored in Redis for every metamodel called
     timeline, which is a list with id's of instances stored in DB
-    (ordered by creation data).
+    (in order of creation).
 
     `/rb/scp/timeline/` serves JSON list of last N (currently 10)
     timeline items for metamodel "scp":
