@@ -122,7 +122,7 @@ prepareRedis snaplet = do
 -- deletion of model instance.
 --
 modelMessage :: String -> (String -> String -> Network.WebSockets.Message p)
-modelMessage event = \id model ->
+modelMessage event = \model id ->
     let
         response :: [(String, String)]
         response = [("event", event),
@@ -287,7 +287,7 @@ delete = ifTop $ do
        notFound
 
   ps <- gets _events
-  liftIO $ PS.publish ps $ creationMessage model id
+  liftIO $ PS.publish ps $ deletionMessage model id
   modifyResponse $ setContentType "application/json"
   writeLBS (hgetallToJson j)
 
