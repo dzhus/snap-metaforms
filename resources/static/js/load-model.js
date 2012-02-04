@@ -15,6 +15,8 @@ $(function () {
 
               refreshTimeline();
               TimelineUpdater = window.setInterval(refreshTimeline, 5000);
+
+              setupEventWebsocket();
           });
 });
 
@@ -33,6 +35,16 @@ function refreshTimeline() {
               $("#timeline").html(contents);
           });                         
 }
+
+function setupEventWebsocket() {
+    EventWebsocket = new MozWebSocket("ws://localhost:8000/rb/scp/events/");
+
+    EventWebsocket.onmessage = function(m) {
+        var obj = JSON.parse(m.data);
+        var tpl = $("#message-" + obj.event).html();
+        $("#messages").append(Mustache.render(tpl, obj)).show("slow");
+    }
+};
 
 /// Delete view, unset updater
 ///

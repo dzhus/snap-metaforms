@@ -21,9 +21,7 @@
   </head>
   <body>
     <div id="sidebar">
-      <div class="block">
-        <span id="message" />
-      </div>
+      <div class="block" id="messages" />
       <div class="block" id="timeline" />
     </div>
 
@@ -82,6 +80,14 @@
       <span class="btn{{# sel }} info{{/ sel }}"
             id="timeline-{{id}}"
             onClick="restore({{ id }});">{{ id }} </span>
+    </script>
+
+    <script type="text/template" id="message-create">
+      <li style="color: green;">+{{ id }}</li>
+    </script>
+
+    <script type="text/template" id="message-delete">
+      <li style="color: red;">-{{ id }}</li>
     </script>
   </body>
 </html>
