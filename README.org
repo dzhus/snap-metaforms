@@ -220,6 +220,12 @@
 
     Client front-end uses timeline to show links to fresh instances.
      
+*** WebSockets notifications
+
+    `/rb/<modelname>/events/` provides instance creation/deletion
+    notifications through WebSockets interface. Events are transmitted
+    to clients in JSON format with fields `event`, `model` and `id`,
+    where `event` is either `create` or `delete`.
 * Work in progress
 
 ** Snap
