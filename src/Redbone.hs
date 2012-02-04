@@ -19,11 +19,14 @@ import Data.Aeson as A
 
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy as BZ (ByteString)
-import Data.ByteString.UTF8 (fromString)
+import qualified Data.ByteString.UTF8 as BU (fromString)
+import qualified Data.ByteString.Lazy.UTF8 as BZU (fromString)
 
 import Data.Lens.Common
 import Data.Lens.Template
+
 import qualified Data.Map as M
+
 import Data.Maybe
 
 import Snap.Core
@@ -32,13 +35,27 @@ import Snap.Snaplet.Heist
 import Snap.Util.FileServe
 import Text.Templating.Heist
 
+import Network.WebSockets
+import Network.WebSockets.Snap
+import qualified Network.WebSockets.Util.PubSub as PS
+
 import RedisDB
 import Database.Redis.Redis
 
 import Util
 
+
+data Event = Create | Update | Delete
+
+------------------------------------------------------------------------------
+-- | Event which can occur to model instance.
+data ModelEvent = ModelEvent String String Event
+
+------------------------------------------------------------------------------
+-- | Redbone snaplet state type.
 data Redbone = Redbone
              { _database :: Snaplet RedisDB
+             , _events :: PS.PubSub Hybi10
              }
 
 makeLens ''Redbone
@@ -100,6 +117,24 @@ prepareRedis snaplet = do
   db <- getRedisDB snaplet
   return (db, modelKey model id)
 
+------------------------------------------------------------------------------
+-- | Builder for WebSockets message containing JSON describing creation or
+-- deletion of model instance.
+--
+modelMessage :: String -> (String -> String -> Network.WebSockets.Message p)
+modelMessage event = \id model ->
+    let
+        response :: [(String, String)]
+        response = [("event", event),
+                    ("id", id), 
+                    ("model", model)]
+    in
+      DataMessage $ Text $ A.encode $ M.fromList response
+
+
+creationMessage = modelMessage "create"
+deletionMessage = modelMessage "delete"
+
 
 ------------------------------------------------------------------------------
 -- | Encode Redis HGETALL reply to ByteString with JSON.
@@ -149,6 +184,8 @@ create = ifTop $ do
   -- Save new instance
   r <- liftIO $ hmset db (modelKey model newId) (fromJust j)
   s <- liftIO $ lpush db (modelTimeline model) newId
+  ps <- gets _events
+  liftIO $ PS.publish ps $ creationMessage model newId
 
   -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5:
   --
@@ -157,7 +194,7 @@ create = ifTop $ do
   -- resource
   modifyResponse $ (setContentType "application/json" . setResponseCode 201)
   -- Tell client new instance id in response JSON.
-  writeLBS $ A.encode $ M.fromList $ ("id", fromString newId):(fromJust j)
+  writeLBS $ A.encode $ M.fromList $ ("id", BU.fromString newId):(fromJust j)
   return ()
 
 
@@ -199,6 +236,19 @@ timeline = ifTop $ do
 
 
 ------------------------------------------------------------------------------
+-- | WebSockets handler which pushes instance creation/deletion events
+-- to client.
+--
+-- @todo Adjustable item limit.
+modelEvents :: HasHeist b => Handler b Redbone ()
+modelEvents = ifTop $ do
+  ps <- gets _events
+  liftSnap $ runWebSocketsSnap (\r -> do
+                                  acceptRequest r
+                                  PS.subscribe ps)
+  
+
+------------------------------------------------------------------------------
 -- | Update existing instance in Redis.
 update :: Handler b Redbone ()
 update = ifTop $ do
@@ -236,6 +286,8 @@ delete = ifTop $ do
   when (n == 0)
        notFound
 
+  ps <- gets _events
+  liftIO $ PS.publish ps $ creationMessage model id
   modifyResponse $ setContentType "application/json"
   writeLBS (hgetallToJson j)
 
@@ -246,6 +298,7 @@ routes :: HasHeist b => [(ByteString, Handler b Redbone ())]
 routes = [ (":model/", method GET emptyForm)
          , (":model/model", method GET metamodel)
          , (":model/timeline", method GET timeline)
+         , (":model/events", modelEvents)
          , (":model", method POST create)
          , (":model/:id", method GET read')
          , (":model/:id", method PUT update)
@@ -259,5 +312,6 @@ redboneInit :: HasHeist b => SnapletInit b Redbone
 redboneInit = makeSnaplet "redbone" "Backbone.js backend with Redis storage" Nothing $
           do
             r <- nestSnaplet "" database $ redisDBInit "127.0.0.1" "6379"
+            p <- liftIO PS.newPubSub
             addRoutes routes
-            return $ Redbone r
+            return $ Redbone r p
