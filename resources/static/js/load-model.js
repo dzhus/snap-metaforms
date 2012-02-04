@@ -25,9 +25,9 @@ function refreshTimeline() {
               var contents = "";
               var tpl = $("#timeline-item").html();
 
-              _.each(data, function (v) {
-                  contents += Mustache.render(tpl, {"sel": v == FormView.model.id,
-                                                    "value": v});
+              _.each(data, function (id) {
+                  contents += Mustache.render(tpl, {"sel": id == FormView.model.id,
+                                                    "id": id});
               });
                   
               $("#timeline").html(contents);
