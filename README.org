@@ -226,6 +226,10 @@
     notifications through WebSockets interface. Events are transmitted
     to clients in JSON format with fields `event`, `model` and `id`,
     where `event` is either `create` or `delete`.
+** Redis interface
+   We use redis bindings coupled with resource-pool-catchio to
+   maintain Redis connection pool. Pool size numbers (set in
+   `RedisDB.hs`) are yet to be tuned.
 * Work in progress
 
 ** Snap
@@ -248,8 +252,11 @@
     changed upon `change` event. Perhaps we can use it to include only
     changed fields in JSON sent to server upon model updates.
     
+*** TODO WebSockets interface improvement
+    - [ ] `load-model.js` contains full URI to WebSockets entry point
+      (currently hardcoded for `scp` metamodel)
 ** Redis
-*** TODO Expose [[http://hackage.haskell.org/packages/archive/redis/latest/doc/html/Database-Redis-Monad.html][monadic interface]] to snaplets using RedisDB.
 *** SOMEDAY Release RedisDB as a separate snaplet
+*** TODO Configurable pool size
 ** Metamodels
 *** TODO Perhaps use [[https://github.com/kmalakoff/knockback][Knockback]] to bind view with models instead of custom code.

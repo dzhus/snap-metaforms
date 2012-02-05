@@ -1,0 +1,14 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /home/sphinx/projects/snap-redis-crud/README.org
+
+
+* TODO Expose [[http://hackage.haskell.org/packages/archive/redis/latest/doc/html/Database-Redis-Monad.html][monadic interface]] to snaplets using RedisDB.
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2012-02-05 Вск 21:19
+  :ARCHIVE_FILE: ~/projects/snap-redis-crud/README.org
+  :ARCHIVE_OLPATH: Work in progress/Redis
+  :ARCHIVE_CATEGORY: README
+  :ARCHIVE_TODO: TODO
+  :END:
