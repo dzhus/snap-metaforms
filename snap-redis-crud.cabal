@@ -1,10 +1,10 @@
-Name:                hs-bonez
+Name:                snap-redis-crud
 Version:             0.1
-Synopsis:            Project Synopsis Here
-Description:         Project Description Here
-License:             AllRightsReserved
-Author:              Author
-Maintainer:          maintainer@example.com
+Synopsis:            Universal CRUD for JSON objects using Snap framework and Redis storage
+Description:         Universal CRUD for JSON objects using Snap framework and Redis storage
+License:             BSD
+Author:              Dmitry Dzhus
+Maintainer:          dima@dzhus.org
 Stability:           Experimental
 Category:            Web
 Build-type:          Simple
