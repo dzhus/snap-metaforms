@@ -15,9 +15,9 @@ where
 
 import Prelude hiding ((.)) 
 import Control.Category ((.))
+import Control.Monad.CatchIO
 import Control.Monad.State
 import Control.Monad.Trans
-import Control.Monad.Trans.Control
 
 import Data.Lens.Common
 import Data.Lens.Template
@@ -55,7 +55,7 @@ makeLens ''RedisDB
 -- | Perform action using Redis connection from RedisDB snaplet pool.
 --
 -- @todo Implement WithRedis instance for apps with this.
-withRedisDB :: (MonadBaseControl IO m, MonadState app m) => Lens app (Snaplet RedisDB) -> (Redis -> m b) -> m b
+withRedisDB :: (MonadCatchIO m, MonadState app m) => Lens app (Snaplet RedisDB) -> (Redis -> m b) -> m b
 withRedisDB snaplet action = do
   p <- gets $ getL (dbPool . snapletValue . snaplet)
   withResource p action
