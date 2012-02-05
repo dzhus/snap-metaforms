@@ -2,7 +2,7 @@ Name:                snap-redis-crud
 Version:             0.1
 Synopsis:            Universal CRUD for JSON objects using Snap framework and Redis storage
 Description:         Universal CRUD for JSON objects using Snap framework and Redis storage
-License:             BSD
+License:             BSD3
 Author:              Dmitry Dzhus
 Maintainer:          dima@dzhus.org
 Stability:           Experimental
