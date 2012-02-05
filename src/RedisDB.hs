@@ -1,4 +1,6 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 {-|
 
@@ -7,17 +9,25 @@ Redis DB snaplet.
 -}
 
 module RedisDB (RedisDB
-                , getRedisDB
+                , withRedisDB
                 , redisDBInit)
 where
 
-import qualified Control.Category as C ((.))
+import Prelude hiding ((.)) 
+import Control.Category ((.))
 import Control.Monad.State
 import Control.Monad.Trans
-import Control.Concurrent.MVar
+import Control.Monad.Trans.Control
+
 import Data.Lens.Common
+import Data.Lens.Template
 import Data.Text (Text)
+
+import Data.Pool
 import Database.Redis.Redis
+
+import Data.Time.Clock
+
 import Snap.Core
 import Snap.Snaplet
 
@@ -27,30 +37,34 @@ import Snap.Snaplet
 description :: Text
 description = "Redis snaplet."
 
+keepAlive :: NominalDiffTime
+keepAlive = 60
+
+poolSize = 5
+subpoolSize = 1
 
 ------------------------------------------------------------------------------
--- | Snaplet's data type. DB connection reference is stored.
+-- | Snaplet's data type. DB connection pool is stored.
 data RedisDB = RedisDB
-    { dbRef :: MVar Redis
+    { _dbPool :: Pool Redis
     }
 
+makeLens ''RedisDB
 
 ------------------------------------------------------------------------------
--- | Get Redis connection handle from RedisDB snaplet.
+-- | Perform action using Redis connection from RedisDB snaplet pool.
 --
 -- @todo Implement WithRedis instance for apps with this.
-getRedisDB :: (MonadIO m, MonadState app m) => Lens app (Snaplet RedisDB) -> m Redis
-getRedisDB snaplet = do
-  (RedisDB cv) <- gets (getL ((C..) snapletValue snaplet))  
-  r <- liftIO $ readMVar cv
-  return r
+withRedisDB :: (MonadBaseControl IO m, MonadState app m) => Lens app (Snaplet RedisDB) -> (Redis -> m b) -> m b
+withRedisDB snaplet action = do
+  p <- gets $ getL (dbPool . snapletValue . snaplet)
+  withResource p action
 
 
 ------------------------------------------------------------------------------
 -- | Make RedisDB snaplet and initialize database connection.
 redisDBInit :: String -> String -> SnapletInit b RedisDB
 redisDBInit host port = makeSnaplet "snaplet-redis" description Nothing $ do
-  conn <- liftIO $ connect host port
-  cv <- liftIO $ newEmptyMVar
-  liftIO $ putMVar cv conn
-  return $ RedisDB cv
+  pool <- liftIO $ 
+    createPool (connect host port) disconnect poolSize keepAlive subpoolSize
+  return $ RedisDB pool
