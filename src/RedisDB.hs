@@ -41,7 +41,7 @@ keepAlive :: NominalDiffTime
 keepAlive = 60
 
 poolSize = 5
-subpoolSize = 1
+subpoolSize = 5
 
 ------------------------------------------------------------------------------
 -- | Snaplet's data type. DB connection pool is stored.
