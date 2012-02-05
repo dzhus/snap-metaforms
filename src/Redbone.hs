@@ -82,7 +82,7 @@ getModelName = fromParam "model"
 
 
 ------------------------------------------------------------------------------
--- | Extract model id from request parameter.
+-- | Extract model instance id from request parameter.
 getModelId:: MonadSnap m => m String
 getModelId= fromParam "id"
 
@@ -92,6 +92,11 @@ getModelId= fromParam "id"
 modelKey :: String -> String -> String
 modelKey model id = model ++ ":" ++ id
 
+
+------------------------------------------------------------------------------
+-- | Extract model instance Redis key from request parameters.
+getModelKey :: MonadSnap m => m String
+getModelKey = liftM2 modelKey getModelName getModelId
 
 ------------------------------------------------------------------------------
 -- | Get Redis key which stores id counter for model
@@ -104,18 +109,6 @@ modelIdKey model = "global:" ++ model ++ ":id"
 modelTimeline :: String -> String
 modelTimeline model = "global:" ++ model ++ ":timeline"
 
-
-------------------------------------------------------------------------------
--- | Get Redis handle and model instance key
---
--- @see getRedisDB
--- @todo WithRedis
-prepareRedis :: (MonadSnap m, MonadState app m) => Lens app (Snaplet RedisDB) -> m (Redis, String)
-prepareRedis snaplet = do
-  model <- getModelName
-  id <- getModelId
-  db <- getRedisDB snaplet
-  return (db, modelKey model id)
 
 ------------------------------------------------------------------------------
 -- | Builder for WebSockets message containing JSON describing creation or
@@ -174,46 +167,48 @@ create = ifTop $ do
   when (isNothing j)
        serverError
 
-  db <- getRedisDB database
+  withRedisDB database $ \db -> do
+    -- Take id from global:model:id
+    model <- getModelName
+    r <- liftIO $ incr db $ modelIdKey model
+    newId <- show <$> fromRInt r
 
-  -- Take id from global:model:id
-  model <- getModelName
-  r <- liftIO $ incr db $ modelIdKey model
-  newId <- show <$> fromRInt r
+    -- Save new instance
+    r <- liftIO $ hmset db (modelKey model newId) (fromJust j)
+    s <- liftIO $ lpush db (modelTimeline model) newId
 
-  -- Save new instance
-  r <- liftIO $ hmset db (modelKey model newId) (fromJust j)
-  s <- liftIO $ lpush db (modelTimeline model) newId
-  ps <- gets _events
-  liftIO $ PS.publish ps $ creationMessage model newId
+    ps <- gets _events
+    liftIO $ PS.publish ps $ creationMessage model newId
 
-  -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5:
-  --
-  -- the response SHOULD be 201 (Created) and contain an entity which
-  -- describes the status of the request and refers to the new
-  -- resource
-  modifyResponse $ (setContentType "application/json" . setResponseCode 201)
-  -- Tell client new instance id in response JSON.
-  writeLBS $ A.encode $ M.fromList $ ("id", BU.fromString newId):(fromJust j)
-  return ()
+    -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5:
+    --
+    -- the response SHOULD be 201 (Created) and contain an entity which
+    -- describes the status of the request and refers to the new
+    -- resource
+    modifyResponse $ (setContentType "application/json" . setResponseCode 201)
+    -- Tell client new instance id in response JSON.
+    writeLBS $ A.encode $ M.fromList $ ("id", BU.fromString newId):(fromJust j)
+    return ()
 
 
 ------------------------------------------------------------------------------
 -- | Read instance from Redis.
 read' :: HasHeist b => Handler b Redbone ()
 read' = ifTop $ do
-  (db, key) <- prepareRedis database
+  -- Pass to index page handler (Snap routing bug workaround)
   id <- fromParam "id"
   when (null id)
        pass
 
-  r <- liftIO $ hgetall db key
-  j <- fromRMultiBulk' r
-  when (null j)
-      notFound
+  key <- getModelKey
+  withRedisDB database $ \db -> do
+    r <- liftIO $ hgetall db key
+    j <- fromRMultiBulk' r
+    when (null j)
+         notFound
 
-  modifyResponse $ setContentType "application/json"
-  writeLBS (hgetallToJson j)
+    modifyResponse $ setContentType "application/json"
+    writeLBS (hgetallToJson j)
 
 
 ------------------------------------------------------------------------------
@@ -222,17 +217,17 @@ read' = ifTop $ do
 -- @todo Adjustable item limit.
 timeline :: HasHeist b => Handler b Redbone ()
 timeline = ifTop $ do
-  (db, key) <- prepareRedis database
   model <- getModelName
 
-  r <- liftIO $ lrange db (modelTimeline model) (0, 9)
-  j <- fromRMultiBulk' r
+  withRedisDB database $ \db -> do
+    r <- liftIO $ lrange db (modelTimeline model) (0, 9)
+    j <- fromRMultiBulk' r
 
-  modifyResponse $ setContentType "application/json"
-  writeLBS (enc' j)
-    where
-      enc' :: [ByteString] -> BZ.ByteString
-      enc' j = A.encode j
+    modifyResponse $ setContentType "application/json"
+    writeLBS (enc' j)
+      where
+        enc' :: [ByteString] -> BZ.ByteString
+        enc' j = A.encode j
 
 
 ------------------------------------------------------------------------------
@@ -256,40 +251,43 @@ update = ifTop $ do
   when (isNothing j)
        serverError
 
-  (db, key) <- prepareRedis database
-  -- @todo Report 201 if previously existed
-  r <- liftIO $ hmset db key (fromJust j)
-  modifyResponse $ setResponseCode 204
-  return()
+  key <- getModelKey
+  withRedisDB database $ \db -> do
+    -- @todo Report 201 if previously existed
+    r <- liftIO $ hmset db key (fromJust j)
+    modifyResponse $ setResponseCode 204
+    return()
 
 ------------------------------------------------------------------------------
 -- | Delete instance from Redis (including timeline).
 delete :: Handler b Redbone ()
 delete = ifTop $ do
-  (db, key) <- prepareRedis database
   id <- getModelId
   model <- getModelName
+  key <- getModelKey
 
-  -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.7
-  --
-  -- A successful response SHOULD be 200 (OK) if the response includes
-  -- an entity describing the status
-  r <- liftIO $ hgetall db key
-  j <- fromRMultiBulk' r
-  when (null j)
-      notFound
+  withRedisDB database $ \db -> do
+    -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.7
+    --
+    -- A successful response SHOULD be 200 (OK) if the response includes
+    -- an entity describing the status
+    r <- liftIO $ hgetall db key
+    j <- fromRMultiBulk' r
+    when (null j)
+         notFound
 
-  -- @todo What if key gets removed between two queries?
-  r <- liftIO $ lrem db (modelTimeline model) 1 id
-  r <- liftIO $ del db key
-  n <- fromRInt r
-  when (n == 0)
-       notFound
+    -- @todo What if key gets removed between two queries?
+    r <- liftIO $ lrem db (modelTimeline model) 1 id
+    r <- liftIO $ del db key
+    n <- fromRInt r
+    when (n == 0)
+         notFound
 
+    modifyResponse $ setContentType "application/json"
+    writeLBS (hgetallToJson j)
+  
   ps <- gets _events
   liftIO $ PS.publish ps $ deletionMessage model id
-  modifyResponse $ setContentType "application/json"
-  writeLBS (hgetallToJson j)
 
 
 -----------------------------------------------------------------------------
