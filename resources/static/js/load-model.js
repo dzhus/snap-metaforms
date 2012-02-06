@@ -37,8 +37,11 @@ function refreshTimeline() {
 }
 
 function setupEventWebsocket() {
-    EventWebsocket = 
-        new MozWebSocket("ws://" + location.host + location.pathname + "events/");
+    var ws = "ws://" + location.host + location.pathname + "events/";
+    if ("undefined" == typeof(MozWebSocket))
+        EventWebsocket = new WebSocket(ws);
+    else
+        EventWebsocket = new MozWebSocket(ws);
 
     EventWebsocket.onmessage = function(m) {
         var obj = JSON.parse(m.data);
