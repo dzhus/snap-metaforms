@@ -253,8 +253,10 @@
     changed fields in JSON sent to server upon model updates.
     
 *** TODO WebSockets interface improvement
-    - [ ] `load-model.js` contains full URI to WebSockets entry point
+    - [X] `load-model.js` contains full URI to WebSockets entry point
       (currently hardcoded for `scp` metamodel)
+    - [ ] publish events only for respective model under
+      `<model>/events` entry point
 ** Redis
 *** SOMEDAY Release RedisDB as a separate snaplet
 *** TODO Configurable pool size

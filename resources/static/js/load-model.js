@@ -37,7 +37,8 @@ function refreshTimeline() {
 }
 
 function setupEventWebsocket() {
-    EventWebsocket = new MozWebSocket("ws://localhost:8000/rb/scp/events/");
+    EventWebsocket = 
+        new MozWebSocket("ws://" + location.host + location.pathname + "events/");
 
     EventWebsocket.onmessage = function(m) {
         var obj = JSON.parse(m.data);
