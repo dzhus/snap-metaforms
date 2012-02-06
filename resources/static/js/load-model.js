@@ -42,7 +42,7 @@ function setupEventWebsocket() {
     EventWebsocket.onmessage = function(m) {
         var obj = JSON.parse(m.data);
         var tpl = $("#message-" + obj.event).html();
-        $("#messages").append(Mustache.render(tpl, obj)).show("slow");
+        $("#messages").append(Mustache.render(tpl, obj));
     }
 };
 
