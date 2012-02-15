@@ -256,7 +256,8 @@
     - [X] `load-model.js` contains full URI to WebSockets entry point
       (currently hardcoded for `scp` metamodel)
     - [ ] publish events only for respective model under
-      `<model>/events` entry point
+      `<model>/events` entry point (requires addressing extension for
+      PubSub or multiple PubSubs)
 ** Redis
 *** SOMEDAY Release RedisDB as a separate snaplet
 *** TODO Configurable pool size
