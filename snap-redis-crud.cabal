@@ -35,6 +35,7 @@ Executable snap-redis-crud
     snap == 0.7.*,
     snap-core   == 0.7.*,
     snap-server == 0.7.*,
+    snap-redis == 0.1.*,
     text >= 0.11 && < 0.12,
     time >= 1.1 && < 1.5,
     utf8-string == 0.3.*,

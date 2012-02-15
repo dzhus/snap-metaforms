@@ -32,6 +32,7 @@ import Data.Maybe
 import Snap.Core
 import Snap.Snaplet
 import Snap.Snaplet.Heist
+import Snap.Snaplet.RedisDB
 import Snap.Util.FileServe
 import Text.Templating.Heist
 
@@ -39,7 +40,6 @@ import Network.WebSockets
 import Network.WebSockets.Snap
 import qualified Network.WebSockets.Util.PubSub as PS
 
-import RedisDB
 import Database.Redis.Redis
 
 import Util

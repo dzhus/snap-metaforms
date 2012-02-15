@@ -227,9 +227,8 @@
     to clients in JSON format with fields `event`, `model` and `id`,
     where `event` is either `create` or `delete`.
 ** Redis interface
-   We use redis bindings coupled with resource-pool-catchio to
-   maintain Redis connection pool. Pool size numbers (set in
-   `RedisDB.hs`) are yet to be tuned.
+   We use redis bindings provided by snap-redis package. Pool size
+   numbers are yet to be tuned.
 * Work in progress
 
 ** Snap
@@ -259,7 +258,6 @@
       `<model>/events` entry point (requires addressing extension for
       PubSub or multiple PubSubs)
 ** Redis
-*** SOMEDAY Release RedisDB as a separate snaplet
 *** TODO Configurable pool size
 ** Metamodels
 *** TODO Perhaps use [[https://github.com/kmalakoff/knockback][Knockback]] to bind view with models instead of custom code.
