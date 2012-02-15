@@ -11,15 +11,17 @@ module Redbone (Redbone
                , redboneInit)
 where
 
+import Prelude hiding (concat)
+
 import Control.Applicative
 import Control.Monad.Trans
 import Control.Monad.State
 
 import Data.Aeson as A
 
-import Data.ByteString (ByteString)
+import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BZ (ByteString)
-import qualified Data.ByteString.UTF8 as BU (fromString)
+import qualified Data.ByteString.UTF8 as BU (fromString, toString)
 import qualified Data.ByteString.Lazy.UTF8 as BZU (fromString)
 
 import Data.Lens.Common
@@ -40,7 +42,7 @@ import Network.WebSockets
 import Network.WebSockets.Snap
 import qualified Network.WebSockets.Util.PubSub as PS
 
-import Database.Redis.Redis
+import Database.Redis
 
 import Util
 
@@ -71,53 +73,56 @@ emptyForm = ifTop $ render "index"
 -- | Serve JSON metamodel.
 metamodel :: Handler b Redbone ()
 metamodel = ifTop $ do
-  modelName <- getModelName
-  serveFile ("resources/static/js/models/" ++ modelName ++ ".js")
+  modelName <- liftM BU.toString getModelName
+  serveFile $ "resources/static/js/models/" ++ modelName ++ ".js"
 
 
 ------------------------------------------------------------------------------
 -- | Extract model name from request path parameter.
-getModelName:: MonadSnap m => m String
+getModelName:: MonadSnap m => m B.ByteString
 getModelName = fromParam "model"
 
 
 ------------------------------------------------------------------------------
 -- | Extract model instance id from request parameter.
-getModelId:: MonadSnap m => m String
+getModelId:: MonadSnap m => m B.ByteString
 getModelId= fromParam "id"
 
 
 ------------------------------------------------------------------------------
 -- | Build Redis key given model name and id
-modelKey :: String -> String -> String
-modelKey model id = model ++ ":" ++ id
+modelKey :: B.ByteString -> B.ByteString -> B.ByteString
+modelKey model id = B.concat [model, ":", id]
 
 
 ------------------------------------------------------------------------------
 -- | Extract model instance Redis key from request parameters.
-getModelKey :: MonadSnap m => m String
+getModelKey :: MonadSnap m => m B.ByteString
 getModelKey = liftM2 modelKey getModelName getModelId
 
 ------------------------------------------------------------------------------
 -- | Get Redis key which stores id counter for model
-modelIdKey :: String -> String
-modelIdKey model = "global:" ++ model ++ ":id"
+modelIdKey :: B.ByteString -> B.ByteString
+modelIdKey model = B.concat ["global:", model, ":id"]
 
 
 ------------------------------------------------------------------------------
 -- | Get Redis key which stores timeline for model
-modelTimeline :: String -> String
-modelTimeline model = "global:" ++ model ++ ":timeline"
+modelTimeline :: B.ByteString -> B.ByteString
+modelTimeline model = B.concat ["global:", model, ":timeline"]
 
 
 ------------------------------------------------------------------------------
 -- | Builder for WebSockets message containing JSON describing creation or
 -- deletion of model instance.
 --
-modelMessage :: String -> (String -> String -> Network.WebSockets.Message p)
+modelMessage :: B.ByteString 
+             -> (B.ByteString 
+                 -> B.ByteString 
+                 -> Network.WebSockets.Message p)
 modelMessage event = \model id ->
     let
-        response :: [(String, String)]
+        response :: [(B.ByteString, B.ByteString)]
         response = [("event", event),
                     ("id", id), 
                     ("model", model)]
@@ -130,20 +135,20 @@ deletionMessage = modelMessage "delete"
 
 
 ------------------------------------------------------------------------------
--- | Encode Redis HGETALL reply to ByteString with JSON.
+-- | Encode Redis HGETALL reply to B.ByteString with JSON.
 --
--- @internal Note using explicit ByteString type over BS s as
+-- @internal Note using explicit B.ByteString type over BS s as
 -- suggested by redis because BS s doesn't imply ToJSON s
-hgetallToJson :: [ByteString] -> BZ.ByteString
-hgetallToJson r = A.encode $ M.fromList (toPairs r)
+hgetallToJson :: [(B.ByteString, B.ByteString)] -> BZ.ByteString
+hgetallToJson r = A.encode $ M.fromList r
 
 
 ------------------------------------------------------------------------------
--- | Decode ByteString with JSON to list of hash keys & values for
+-- | Decode B.ByteString with JSON to list of hash keys & values for
 -- Redis HMSET
 --
 -- @return Nothing if parsing failed
-jsonToHsetall :: BZ.ByteString -> Maybe [(ByteString, ByteString)]
+jsonToHsetall :: BZ.ByteString -> Maybe [(B.ByteString, B.ByteString)]
 jsonToHsetall s =
     let
         j = A.decode s
@@ -167,28 +172,30 @@ create = ifTop $ do
   when (isNothing j)
        serverError
 
-  withRedisDB database $ \db -> do
+  model <- getModelName
+  newId <- runRedisDB database $ do
     -- Take id from global:model:id
-    model <- getModelName
-    r <- liftIO $ incr db $ modelIdKey model
-    newId <- show <$> fromRInt r
+    Right n <- incr $ modelIdKey model
+    newId <- return $ (BU.fromString . show) n
 
     -- Save new instance
-    r <- liftIO $ hmset db (modelKey model newId) (fromJust j)
-    s <- liftIO $ lpush db (modelTimeline model) newId
+    _ <- hmset (modelKey model newId) (fromJust j) 
+    _ <- lpush (modelTimeline model) [newId]
+    return newId
 
-    ps <- gets _events
-    liftIO $ PS.publish ps $ creationMessage model newId
+  ps <- gets _events
 
-    -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5:
-    --
-    -- the response SHOULD be 201 (Created) and contain an entity which
-    -- describes the status of the request and refers to the new
-    -- resource
-    modifyResponse $ (setContentType "application/json" . setResponseCode 201)
-    -- Tell client new instance id in response JSON.
-    writeLBS $ A.encode $ M.fromList $ ("id", BU.fromString newId):(fromJust j)
-    return ()
+  liftIO $ PS.publish ps $ creationMessage model newId
+
+  -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.5:
+  --
+  -- the response SHOULD be 201 (Created) and contain an entity which
+  -- describes the status of the request and refers to the new
+  -- resource
+  modifyResponse $ (setContentType "application/json" . setResponseCode 201)
+  -- Tell client new instance id in response JSON.
+  writeLBS $ A.encode $ M.fromList $ ("id", newId):(fromJust j)
+  return ()
 
 
 ------------------------------------------------------------------------------
@@ -197,19 +204,20 @@ read' :: HasHeist b => Handler b Redbone ()
 read' = ifTop $ do
   -- Pass to index page handler (Snap routing bug workaround)
   id <- fromParam "id"
-  when (null id)
+  when (B.null id)
        pass
 
   key <- getModelKey
-  withRedisDB database $ \db -> do
-    r <- liftIO $ hgetall db key
-    j <- fromRMultiBulk' r
-    when (null j)
-         notFound
+  r <- runRedisDB database $ do
+    Right r <- hgetall key
+    return r
 
-    modifyResponse $ setContentType "application/json"
-    writeLBS (hgetallToJson j)
+  when (null r)
+       notFound
 
+  modifyResponse $ setContentType "application/json"
+  writeLBS (hgetallToJson r)
+  return ()
 
 ------------------------------------------------------------------------------
 -- | Serve list of 10 latest instances stored in Redis.
@@ -219,22 +227,20 @@ timeline :: HasHeist b => Handler b Redbone ()
 timeline = ifTop $ do
   model <- getModelName
 
-  withRedisDB database $ \db -> do
-    r <- liftIO $ lrange db (modelTimeline model) (0, 9)
-    j <- fromRMultiBulk' r
+  r <- runRedisDB database $ do
+    Right r <- lrange (modelTimeline model) 0 9
+    return r
 
-    modifyResponse $ setContentType "application/json"
-    writeLBS (enc' j)
-      where
-        enc' :: [ByteString] -> BZ.ByteString
-        enc' j = A.encode j
+  modifyResponse $ setContentType "application/json"
+  writeLBS (enc' r)
+    where
+        enc' :: [B.ByteString] -> BZ.ByteString
+        enc' r = A.encode r
 
 
 ------------------------------------------------------------------------------
 -- | WebSockets handler which pushes instance creation/deletion events
 -- to client.
---
--- @todo Adjustable item limit.
 modelEvents :: HasHeist b => Handler b Redbone ()
 modelEvents = ifTop $ do
   ps <- gets _events
@@ -252,11 +258,9 @@ update = ifTop $ do
        serverError
 
   key <- getModelKey
-  withRedisDB database $ \db -> do
-    -- @todo Report 201 if previously existed
-    r <- liftIO $ hmset db key (fromJust j)
-    modifyResponse $ setResponseCode 204
-    return()
+  runRedisDB database $ hmset key (fromJust j)
+  modifyResponse $ setResponseCode 204
+  return()
 
 ------------------------------------------------------------------------------
 -- | Delete instance from Redis (including timeline).
@@ -266,25 +270,21 @@ delete = ifTop $ do
   model <- getModelName
   key <- getModelKey
 
-  withRedisDB database $ \db -> do
+  r <- runRedisDB database $ do
     -- http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html#sec9.7
     --
     -- A successful response SHOULD be 200 (OK) if the response includes
     -- an entity describing the status
-    r <- liftIO $ hgetall db key
-    j <- fromRMultiBulk' r
-    when (null j)
-         notFound
+    Right r <- hgetall key
+    return r
 
-    -- @todo What if key gets removed between two queries?
-    r <- liftIO $ lrem db (modelTimeline model) 1 id
-    r <- liftIO $ del db key
-    n <- fromRInt r
-    when (n == 0)
-         notFound
+  when (null r)
+       notFound
 
-    modifyResponse $ setContentType "application/json"
-    writeLBS (hgetallToJson j)
+  runRedisDB database $ lrem (modelTimeline model) 1 id >> del [key]
+
+  modifyResponse $ setContentType "application/json"
+  writeLBS (hgetallToJson r)
   
   ps <- gets _events
   liftIO $ PS.publish ps $ deletionMessage model id
@@ -292,7 +292,7 @@ delete = ifTop $ do
 
 -----------------------------------------------------------------------------
 -- | CRUD routes for models.
-routes :: HasHeist b => [(ByteString, Handler b Redbone ())]
+routes :: HasHeist b => [(B.ByteString, Handler b Redbone ())]
 routes = [ (":model/", method GET emptyForm)
          , (":model/model", method GET metamodel)
          , (":model/timeline", method GET timeline)
@@ -309,7 +309,7 @@ routes = [ (":model/", method GET emptyForm)
 redboneInit :: HasHeist b => SnapletInit b Redbone
 redboneInit = makeSnaplet "redbone" "Backbone.js backend with Redis storage" Nothing $
           do
-            r <- nestSnaplet "" database $ redisDBInit "127.0.0.1" "6379"
+            r <- nestSnaplet "" database $ redisDBInit defaultConnectInfo
             p <- liftIO PS.newPubSub
             addRoutes routes
             return $ Redbone r p

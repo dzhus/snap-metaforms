@@ -8,17 +8,12 @@ import Data.ByteString (ByteString)
 import Data.ByteString.UTF8 (toString)
 import Data.Maybe
 
-import Database.Redis.ByteStringClass
-
 import Snap.Core
 
 ------------------------------------------------------------------------------
 -- | Get parameter value from Request or return empty string
-fromParam :: MonadSnap m => ByteString -> m String
-fromParam p = do
-  par <- fromMaybe "" <$> getParam p
-  return $ toString par
-
+fromParam :: MonadSnap m => ByteString -> m ByteString
+fromParam p = fromMaybe "" <$> getParam p
 
 ------------------------------------------------------------------------------
 -- | Short-circuit MonadSnap flow with 404 Not found
@@ -36,16 +31,3 @@ serverError = do
   modifyResponse $ setResponseCode 500
   r <- getResponse
   finishWith r
-
-
-------------------------------------------------------------------------------
--- | Transform list ["k1", "v1", .. "kn", "vn"] to
--- [("k1", "v1"), .. ("kn", "vn")].
---
--- We use this to process Redis hgetall reply.
-toPairs :: BS s => [s] -> [(s, s)]
-toPairs l = 
-    toPairs' l []
-        where
-          toPairs' [] d = d
-          toPairs' (k:(v:t)) d = toPairs' t (d ++ [(k, v)])
