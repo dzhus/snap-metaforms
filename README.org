@@ -261,3 +261,9 @@
 *** TODO Configurable pool size
 ** Metamodels
 *** TODO Perhaps use [[https://github.com/kmalakoff/knockback][Knockback]] to bind view with models instead of custom code.
+*** TODO Aggregate fields
+    Certain fields should support «explosion» into several detailed
+    sub-fields which may be combined (in a custom-defined way) to
+    produce new parent field value.
+*** TODO Access control
+    Per-field permissions (r/w) for different user groups (roles)
