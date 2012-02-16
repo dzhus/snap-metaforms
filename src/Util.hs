@@ -1,11 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+{-|
+
+Miscellaneous functions for Snap.
+
+-}
+
 module Util where
 
 import Control.Applicative
 
 import Data.ByteString (ByteString)
-import Data.ByteString.UTF8 (toString)
 import Data.Maybe
 
 import Snap.Core
@@ -14,6 +19,7 @@ import Snap.Core
 -- | Get parameter value from Request or return empty string
 fromParam :: MonadSnap m => ByteString -> m ByteString
 fromParam p = fromMaybe "" <$> getParam p
+
 
 ------------------------------------------------------------------------------
 -- | Short-circuit MonadSnap flow with 404 Not found
