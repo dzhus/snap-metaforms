@@ -51,7 +51,7 @@ routes = [
 -- | The application initializer.
 appInit :: SnapletInit App App
 appInit = makeSnaplet "app" "Forms application" Nothing $ do
-  r <- nestSnaplet "rb" redson $ redsonInit
+  r <- nestSnaplet "rs" redson $ redsonInit
   h <- nestSnaplet "heist" heist $ heistInit "resources/templates"
   sTime <- liftIO getCurrentTime
   addRoutes routes
