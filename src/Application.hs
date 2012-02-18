@@ -11,12 +11,16 @@ module Application (appInit)
 
 where
 
-import Control.Monad.Trans
+import Control.Monad.IO.Class
+import Data.Functor
+import Data.Maybe
 
 import Data.ByteString (ByteString)
+import qualified Data.ByteString.UTF8 as BU (toString)
 import Data.Lens.Template
 import Data.Time.Clock
 
+import Snap.Core
 import Snap.Snaplet
 import Snap.Snaplet.Heist
 import Snap.Util.FileServe
@@ -40,10 +44,25 @@ instance HasHeist App where
 
 
 ------------------------------------------------------------------------------
+-- | Render empty form for model.
+emptyForm :: AppHandler ()
+emptyForm = ifTop $ render "index"
+
+
+------------------------------------------------------------------------------
+-- | Serve JSON metamodel.
+metamodel :: AppHandler ()
+metamodel = ifTop $ do
+  modelName <- (BU.toString . fromMaybe "") <$> getParam "model"
+  serveFile $ "resources/static/js/models/" ++ modelName ++ ".js"
+
+
+------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, AppHandler ())]
-routes = [
-          ("resources/static", serveDirectory "resources/static")
+routes = [ ("rs/:model/", method GET emptyForm)
+         , ("rs/:model/model", method GET metamodel)
+         , ("resources/static", serveDirectory "resources/static")
          ]
 
 
