@@ -1,21 +1,10 @@
-PRJ := hs-bonez
-
-.PHONY: clean build build-dev deploy run
+.PHONY: clean install install-dev
 
 clean:
 	cabal clean
 
-build: clean
-	cabal configure
-	cabal build
+install-dev: clean
+	cabal-dev install --force-reinstalls -fdevelopment
 
-build-dev: clean
-	cabal configure -fdevelopment
-	cabal build
-
-deploy: build
+install: clean
 	cabal install
-
-run: build-dev
-	cabal install -fdevelopment
-	$(HOME)/.cabal/bin/hs-bonez
