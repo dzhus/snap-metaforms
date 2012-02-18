@@ -1,7 +1,6 @@
-Name:                snap-redis-crud
+Name:                snap-metaforms
 Version:             0.1
-Synopsis:            Universal CRUD for JSON objects using Snap framework and Redis storage
-Description:         Universal CRUD for JSON objects using Snap framework and Redis storage
+Synopsis:            Web forms CRUD UI with Snap framework and Redis
 License:             BSD3
 Author:              Dmitry Dzhus
 Maintainer:          dima@dzhus.org
@@ -14,7 +13,7 @@ Flag development
   Description: Whether to build the server in development (interpreted) mode
   Default: False
 
-Executable snap-redis-crud
+Executable snap-metaforms
   hs-source-dirs: src
   main-is: Main.hs
 
@@ -26,21 +25,18 @@ Executable snap-redis-crud
     containers == 0.4.*,
     data-lens >= 2.0.1 && < 2.1,
     data-lens-template >= 2.1 && < 2.2,
-    hedis == 0.3.*,
     heist >= 0.7 && < 0.8,
     MonadCatchIO-transformers >= 0.2.1 && < 0.3,
     monad-control >= 0.2,
     mtl >= 2 && < 3,
-    snap == 0.7.*,
+    snap >= 0.7.1 && < 0.8,
     snap-core   == 0.7.*,
     snap-server == 0.7.*,
-    snap-redis == 0.2.*,
+    snaplet-redis == 0.1.*,
+    snaplet-redson == 0.1.*,
     text >= 0.11 && < 0.12,
     time >= 1.1 && < 1.5,
-    utf8-string == 0.3.*,
-    xmlhtml == 0.1.*,
-    websockets == 0.5.*,
-    websockets-snap == 0.5.*
+    xmlhtml == 0.1.*
 
   if flag(development)
     cpp-options: -DDEVELOPMENT

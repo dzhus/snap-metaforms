@@ -13,7 +13,7 @@ import           Snap.Core
 
 import           System.IO
 
-import           Site
+import           Application
 
 #ifdef DEVELOPMENT
 import           Snap.Loader.Devel
@@ -104,6 +104,6 @@ getConf = commandLineConfig defaultConfig
 -- sophisticated code might.
 getActions :: Config Snap () -> IO (Snap (), IO ())
 getActions _ = do
-    (msgs, site, cleanup) <- runSnaplet app
+    (msgs, site, cleanup) <- runSnaplet appInit
     hPutStrLn stderr $ T.unpack msgs
     return (site, cleanup)
