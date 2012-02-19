@@ -22,8 +22,14 @@ import Data.Time.Clock
 
 import Snap.Core
 import Snap.Snaplet
+import Snap.Snaplet.Auth hiding (session)
+import Snap.Snaplet.Auth.Backends.JsonFile
 import Snap.Snaplet.Heist
+import Snap.Snaplet.Session
+import Snap.Snaplet.Session.Backends.CookieSession
 import Snap.Util.FileServe
+
+import Web.ClientSession
 
 import Snap.Snaplet.Redson
 
@@ -32,6 +38,8 @@ import Snap.Snaplet.Redson
 data App = App
     { _heist :: Snaplet (Heist App)
     , _redson :: Snaplet Redson
+    , _session :: Snaplet SessionManager
+    , _auth :: Snaplet (AuthManager App)
     , _startTime :: UTCTime
     }
 
@@ -65,13 +73,32 @@ routes = [ ("rs/:model/", method GET emptyForm)
          , ("resources/static", serveDirectory "resources/static")
          ]
 
+-- | Path to AES key file
+keyPath :: FilePath
+keyPath = "resources/private/" ++ defaultKeyFile
+
+userDB :: FilePath
+userDB = "resources/private/users.json"
+
+sessionTimeout :: Maybe Int
+sessionTimeout = Nothing
 
 ------------------------------------------------------------------------------
 -- | The application initializer.
 appInit :: SnapletInit App App
 appInit = makeSnaplet "app" "Forms application" Nothing $ do
   r <- nestSnaplet "rs" redson $ redsonInit
+
   h <- nestSnaplet "heist" heist $ heistInit "resources/templates"
+  addAuthSplices auth
+
+  s <- nestSnaplet "session" session $ 
+       initCookieSessionManager keyPath "_session" sessionTimeout
+  a <- nestSnaplet "auth" auth $ 
+       initJsonFileAuthManager defAuthSettings session userDB
+
   sTime <- liftIO getCurrentTime
+
   addRoutes routes
-  return $ App h r sTime
+
+  return $ App h r s a sTime
