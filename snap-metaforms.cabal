@@ -8,6 +8,7 @@ Stability:           Experimental
 Category:            Web
 Build-type:          Simple
 Cabal-version:       >=1.2
+Tested-with:         GHC == 7.4.1
 
 Flag development
   Description: Whether to build the server in development (interpreted) mode
@@ -18,26 +19,26 @@ Executable snap-metaforms
   main-is: Main.hs
 
   Build-depends:
-    aeson == 0.6.*,
-    base >= 4 && < 5,
-    blaze-builder == 0.3.*,
-    bytestring >= 0.9.1 && < 0.10,
-    containers == 0.4.*,
-    data-lens >= 2.0.1 && < 2.1,
-    data-lens-template >= 2.1 && < 2.2,
-    heist >= 0.7 && < 0.8,
-    MonadCatchIO-transformers >= 0.2.1 && < 0.3,
-    monad-control >= 0.2,
-    snap >= 0.7.1 && < 0.8,
-    snap-core   == 0.7.*,
-    snap-server == 0.7.*,
-    snaplet-redis == 0.1.*,
-    snaplet-redson == 0.1.*,
-    text >= 0.11 && < 0.12,
-    time >= 1.1 && < 1.5,
-    transformers == 0.2.*,
-    utf8-string == 0.3.*,
-    xmlhtml == 0.1.*
+    aeson                       == 0.6.*,
+    base                        >= 4 && < 5,
+    blaze-builder               == 0.3.*,
+    bytestring                  >= 0.9.1 && < 0.10,
+    containers                  == 0.4.*,
+    data-lens                   >= 2.0.1 && < 2.1,
+    data-lens-template          >= 2.1 && < 2.2,
+    heist                       >= 0.7 && < 0.8,
+    MonadCatchIO-transformers   >= 0.2.1 && < 0.3,
+    monad-control               >= 0.2,
+    snap                        >= 0.7.1 && < 0.8,
+    snap-core                   == 0.7.*,
+    snap-server                 == 0.7.*,
+    snaplet-redis               == 0.1.*,
+    snaplet-redson              == 0.1.*,
+    text                        >= 0.11 && < 0.12,
+    time                        >= 1.1 && < 1.5,
+    transformers                == 0.2.*,
+    utf8-string                 == 0.3.*,
+    xmlhtml                     == 0.1.*
 
   if flag(development)
     cpp-options: -DDEVELOPMENT
