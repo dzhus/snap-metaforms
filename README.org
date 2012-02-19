@@ -1,4 +1,4 @@
-#+SEQ_TODO: MAYBE SOMEDAY BLOCKED TODO WAITING(!) | DONE
+#+SEQ_TODO: MAYBE SOMEDAY BLOCKED TODO WAITING | DONE
 
 * Overview
   We provide generic CRUD web interface for forms, which are defined
@@ -111,3 +111,6 @@
     Certain fields should support «explosion» into several detailed
     sub-fields which may be combined (in a custom-defined way) to
     produce new parent field value.
+*** TODO Suckins
+    Show dynamically-loaded data when entering a field (possible
+    propose field contents completion from this data)
