@@ -21,6 +21,20 @@
   </head>
   <body>
     <div id="sidebar">
+      <div class="block" id="login">
+        <ifLoggedOut>
+          <img src="/resources/static/images/awesome-inactive.png" />
+          <div style="float: right;">
+            <b>Вход не выполнен</b>
+          </div>
+        </ifLoggedOut>
+        <ifLoggedIn>
+          <img src="/resources/static/images/awesome.png" />
+          <div style="float: right;">
+            <loggedInUser />
+          </div>
+        </ifLoggedIn>
+      </div>
       <div class="block" id="messages" />
       <div class="block" id="timeline" />
     </div>
@@ -38,6 +52,7 @@
       </form>
     </div>
 
+    <!-- Form field templates -->
     <script type="text/template" id="longtext-field-template">
       <li class="{{ field.name }} item">
         <label>{{ field.label }}:<br />
@@ -82,6 +97,7 @@
             onClick="restore({{ id }});">{{ id }} </span>
     </script>
 
+    <!-- WebSocket notifications -->
     <script type="text/template" id="message-create">
       <li style="color: green;">+{{ id }}</li>
     </script>
