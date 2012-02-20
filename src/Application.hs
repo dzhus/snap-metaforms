@@ -71,7 +71,7 @@ metamodel = ifTop $ do
 --
 -- Used after unsuccessful access/login attempt or logout.
 redirectToLogin :: MonadSnap m => m a
-redirectToLogin = redirect' "/login" 303
+redirectToLogin = redirect' "/login/" 303
 
 
 ------------------------------------------------------------------------------
@@ -106,10 +106,10 @@ doLogin = ifTop $ do
 routes :: [(ByteString, AppHandler ())]
 routes = [ ("/_/:model/", authOrLogin $ method GET emptyForm)
          , ("/_/:model/model/", authOrLogin $ method GET metamodel)
-         , ("login", method GET loginForm)
-         , ("login", method POST doLogin)
-         , ("logout", with auth $ logout >> redirectToLogin)
-         , ("resources/static", serveDirectory "resources/static")
+         , ("/login/", method GET loginForm)
+         , ("/login/", method POST doLogin)
+         , ("/logout/", with auth $ logout >> redirectToLogin)
+         , ("/s/", serveDirectory "resources/static")
          ]
 
 
