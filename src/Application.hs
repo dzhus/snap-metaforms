@@ -67,6 +67,14 @@ metamodel = ifTop $ do
 
 
 ------------------------------------------------------------------------------
+-- | Redirect using 303 See Other to login form.
+--
+-- Used after unsuccessful access/login attempt or logout.
+redirectToLogin :: MonadSnap m => m a
+redirectToLogin = redirect' "login" 303
+
+
+------------------------------------------------------------------------------
 -- | Render empty login form.
 loginForm :: AppHandler ()
 loginForm = do
@@ -79,8 +87,10 @@ doLogin :: AppHandler ()
 doLogin = ifTop $ do
   l <- fromMaybe "" <$> getParam "login"
   p <- fromMaybe "" <$> getParam "password"
-  _ <- with auth $ loginByUsername l (ClearText p) True
-  return ()
+  res <- with auth $ loginByUsername l (ClearText p) True
+  case res of
+    Left err -> redirectToLogin
+    Right user -> redirect "/rs/scp"
 
 
 ------------------------------------------------------------------------------
@@ -90,8 +100,7 @@ routes = [ ("rs/:model/", method GET emptyForm)
          , ("rs/:model/model", method GET metamodel)
          , ("login", method GET loginForm)
          , ("login", method POST doLogin)
-         -- Issue 303 See Other after logout. Let's get purist!
-         , ("logout", with auth $ logout >> redirect' "login" 303)
+         , ("logout", with auth $ logout >> redirectToLogin)
          , ("resources/static", serveDirectory "resources/static")
          ]
 
