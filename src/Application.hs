@@ -75,6 +75,13 @@ redirectToLogin = redirect' "/login" 303
 
 
 ------------------------------------------------------------------------------
+-- | If user is not logged in, redirect to login page, pass to
+-- handler otherwise.
+authOrLogin :: AppHandler () -> AppHandler ()
+authOrLogin h = requireUser auth redirectToLogin h
+
+
+------------------------------------------------------------------------------
 -- | Render empty login form.
 loginForm :: AppHandler ()
 loginForm = do
@@ -97,8 +104,8 @@ doLogin = ifTop $ do
 ------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, AppHandler ())]
-routes = [ ("rs/:model/", method GET emptyForm)
-         , ("rs/:model/model", method GET metamodel)
+routes = [ ("rs/:model/", authOrLogin $ method GET emptyForm)
+         , ("rs/:model/model", authOrLogin $ method GET metamodel)
          , ("login", method GET loginForm)
          , ("login", method POST doLogin)
          , ("logout", with auth $ logout >> redirectToLogin)
