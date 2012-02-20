@@ -92,9 +92,9 @@ appInit = makeSnaplet "app" "Forms application" Nothing $ do
   h <- nestSnaplet "heist" heist $ heistInit "resources/templates"
   addAuthSplices auth
 
-  s <- nestSnaplet "session" session $ 
+  s <- nestSnaplet "session" session $
        initCookieSessionManager keyPath "_session" sessionTimeout
-  a <- nestSnaplet "auth" auth $ 
+  a <- nestSnaplet "auth" auth $
        initJsonFileAuthManager defAuthSettings session userDB
 
   sTime <- liftIO getCurrentTime
