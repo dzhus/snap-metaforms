@@ -66,10 +66,21 @@ metamodel = ifTop $ do
 
 
 ------------------------------------------------------------------------------
+-- | Login user.
+doLogin :: AppHandler ()
+doLogin = ifTop $ do
+  l <- fromMaybe "" <$> getParam "login"
+  p <- fromMaybe "" <$> getParam "password"
+  _ <- with auth $ loginByUsername l (ClearText p) True
+  return ()
+
+
+------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, AppHandler ())]
 routes = [ ("rs/:model/", method GET emptyForm)
          , ("rs/:model/model", method GET metamodel)
+         , ("login", doLogin)
          , ("resources/static", serveDirectory "resources/static")
          ]
 
