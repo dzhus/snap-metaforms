@@ -98,14 +98,14 @@ doLogin = ifTop $ do
   res <- with auth $ loginByUsername l (ClearText p) r
   case res of
     Left err -> redirectToLogin
-    Right user -> redirect "/rs/scp"
+    Right user -> redirect "/_/scp/"
 
 
 ------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, AppHandler ())]
-routes = [ ("rs/:model/", authOrLogin $ method GET emptyForm)
-         , ("rs/:model/model", authOrLogin $ method GET metamodel)
+routes = [ ("/_/:model/", authOrLogin $ method GET emptyForm)
+         , ("/_/:model/model/", authOrLogin $ method GET metamodel)
          , ("login", method GET loginForm)
          , ("login", method POST doLogin)
          , ("logout", with auth $ logout >> redirectToLogin)
@@ -128,7 +128,7 @@ sessionTimeout = Nothing
 -- | The application initializer.
 appInit :: SnapletInit App App
 appInit = makeSnaplet "app" "Forms application" Nothing $ do
-  r <- nestSnaplet "rs" redson $ redsonInit
+  r <- nestSnaplet "_" redson $ redsonInit
 
   h <- nestSnaplet "heist" heist $ heistInit "resources/templates"
   addAuthSplices auth

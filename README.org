@@ -87,6 +87,14 @@
    provides fetch(), save() and destroy() methods which result in
    appropriate requests being sent to server.
 
+   `/_/<formid>/` serves title page (which is in fact the same for any
+   <formid>) with all the code required to process metamodels on
+   client side. Client JavaScript further requests metamodel
+   description in bare JSON using `/_/<formid>/model/` URL, from which
+   the server picks `<formid>.js` metamodel and sends it back to
+   client. Redson snaplet is nested under `_/` URL, which provides
+   server API compatible to Backbone.sync.
+
    View's render function uses [[https://github.com/janl/mustache.js][Mustache.js]] coupled with templates
    served along with index HTML page to show HTML form.
 
@@ -100,6 +108,12 @@
    instantiate Backbone model & view for form, as well as selecting
    different form or calling its remove() method, which sends a delete
    request to server.
+
+** Authentication
+
+   `/login` provides login screen on GET and logs user in on POST,
+   whereas `/logout` logouts user. Any attempts to access URLs under
+   `/_` require login.
 
 * Work in progress
 
