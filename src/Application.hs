@@ -71,7 +71,7 @@ metamodel = ifTop $ do
 --
 -- Used after unsuccessful access/login attempt or logout.
 redirectToLogin :: MonadSnap m => m a
-redirectToLogin = redirect' "login" 303
+redirectToLogin = redirect' "/login" 303
 
 
 ------------------------------------------------------------------------------
