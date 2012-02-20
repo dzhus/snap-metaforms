@@ -87,7 +87,8 @@ doLogin :: AppHandler ()
 doLogin = ifTop $ do
   l <- fromMaybe "" <$> getParam "login"
   p <- fromMaybe "" <$> getParam "password"
-  res <- with auth $ loginByUsername l (ClearText p) True
+  r <- maybe False (const True) <$> getParam "remember"
+  res <- with auth $ loginByUsername l (ClearText p) r
   case res of
     Left err -> redirectToLogin
     Right user -> redirect "/rs/scp"
