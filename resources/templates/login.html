@@ -12,11 +12,20 @@
         <img src="/resources/static/images/awesome-inactive.png" />
       </div>
       <form id="loginform">
-          Имя пользователя: <input type="text" class="field" name="user" />
-          <br />
-          Пароль: <input type="text" class="field" name="password" />
-          <br />
-        <button class="btn info" type="submit">Вход</button>
+        <label>Имя пользователя:<br />
+          <input type="text" class="field" name="user" />
+        </label>
+        <br />
+        <label>Пароль: <br />
+          <input type="text" class="field" name="password" />
+        </label>
+        <br />
+        <label>
+          <input type="checkbox" class="field" name="remember" />
+          Запомнить меня
+        </label>
+        <div id="logincontrols">
+          <button class="btn info" type="submit">Вход</button>
         </div>
       </form>
       <div style="clear: both;" />

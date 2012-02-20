@@ -1,7 +1,7 @@
 #loginblock {
-  width: 40%;
+  width: 30%;
   margin-top: 10%;
-  margin-left: 30%;
+  margin-left: 35%;
 }
 
 #loginlogo {
@@ -10,6 +10,11 @@
 }
 
 #loginform {
-  text-align: right; 
-  margin-right: 20%;
+  margin-left: 30%;
+  margin-right: 30%;
+}
+
+#logincontrols {
+  text-align: center;
+  margin-top: 10pt;
 }
