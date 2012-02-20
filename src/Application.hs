@@ -33,6 +33,7 @@ import Web.ClientSession
 
 import Snap.Snaplet.Redson
 
+
 ------------------------------------------------------------------------------
 -- | Application snaplet state type: Redson, Heist.
 data App = App
@@ -66,6 +67,13 @@ metamodel = ifTop $ do
 
 
 ------------------------------------------------------------------------------
+-- | Render empty login form.
+loginForm :: AppHandler ()
+loginForm = do
+  serveFile $ "resources/templates/login.html"
+
+
+------------------------------------------------------------------------------
 -- | Login user.
 doLogin :: AppHandler ()
 doLogin = ifTop $ do
@@ -80,9 +88,13 @@ doLogin = ifTop $ do
 routes :: [(ByteString, AppHandler ())]
 routes = [ ("rs/:model/", method GET emptyForm)
          , ("rs/:model/model", method GET metamodel)
-         , ("login", doLogin)
+         , ("login", method GET loginForm)
+         , ("login", method POST doLogin)
+         -- Issue 303 See Other after logout. Let's get purist!
+         , ("logout", with auth $ logout >> redirect' "login" 303)
          , ("resources/static", serveDirectory "resources/static")
          ]
+
 
 -- | Path to AES key file
 keyPath :: FilePath
@@ -93,6 +105,7 @@ userDB = "resources/private/users.json"
 
 sessionTimeout :: Maybe Int
 sessionTimeout = Nothing
+
 
 ------------------------------------------------------------------------------
 -- | The application initializer.
