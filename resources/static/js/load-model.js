@@ -13,7 +13,6 @@ $(function () {
               $("#model-name").append(metamodel.title);
               setupView(new mkBackboneModel);
 
-              refreshTimeline();
               TimelineUpdater = window.setInterval(refreshTimeline, 5000);
 
               setupEventWebsocket();
@@ -36,6 +35,8 @@ function refreshTimeline() {
           });                         
 }
 
+/// Subscribe to websocket notifications and print messages in
+/// #messages
 function setupEventWebsocket() {
     var ws = "ws://" + location.host + location.pathname + "events/";
     if ("undefined" == typeof(MozWebSocket))
@@ -50,9 +51,7 @@ function setupEventWebsocket() {
     }
 };
 
-/// Delete view, unset updater
-///
-/// @todo Refactor so that no explicit clearInterval calls are needed.
+/// Delete form, release observables
 function forgetView() {
     kb.vmRelease(KnockVM);
     FormElement.empty();
@@ -81,7 +80,7 @@ function proceed() {
     setupView(new mkBackboneModel);
 }
 
-/// Save current model and start fresh form
+/// Load existing model
 function restore(id) {
     forgetView();
     setupView(new mkBackboneModel({"id": String(id)}));
