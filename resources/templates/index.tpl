@@ -65,7 +65,8 @@
           <textarea class="{{ name }} field" 
                     name="{{ name }}" 
                     rows="7" cols="70"
-                    data-bind="value: {{ name }}"></textarea>
+                    data-bind="value: {{ name }},
+                               valueUpdate: 'afterkeydown'" />
         </label>
       </li>
     </script>
