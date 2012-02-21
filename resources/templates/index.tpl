@@ -8,10 +8,15 @@
     <!-- DOM manipulation -->
     <script src="/s/js/thirdparty/jquery-1.7.1.min.js" />
 
+    <script src="/s/js/thirdparty/knockout-2.0.0.js" />
+
     <!-- Utility library, Backbone dependency -->
     <script src="/s/js/thirdparty/underscore-min.js" />
     <!-- Loose MVC -->
     <script src="/s/js/thirdparty/backbone-min.js" />
+
+    <!-- Knockback is a Knockout + Backbone glue -->
+    <script src="/s/js/thirdparty/knockback-0.12.js" />
 
     <!-- Simple templates -->
     <script src="/s/js/thirdparty/mustache.js" />
@@ -57,7 +62,8 @@
         <label>{{ field.label }}:<br />
           <textarea class="{{ field.name }} field" 
                     name="{{ field.name }}" 
-                    rows="7" cols="70">{{ value }}</textarea>
+                    rows="7" cols="70"
+                    data-bind="value: {{ field.name }}"></textarea>
         </label>
       </li>
     </script>
@@ -69,7 +75,8 @@
                  class="{{ field.name }} field"
                  name="{{ field.name }}"
                  size="70"
-                 value="{{ value }}" />
+                 data-bind="value: {{ field.name }}, 
+                            valueUpdate: 'afterkeydown'" />
         </label>
       </li>
     </script>
@@ -78,10 +85,11 @@
       <li class="{{ field.name }} item">
         <label>{{ field.label }}:<br />
           <select class="{{ field.name }} field"
-                  name="{{ field.name }}">
+                  name="{{ field.name }}"
+                  data-bind="value: {{ field.name }},
+                             valueUpdate: 'afterkeydown'">
             {{# choice }}
-            <option value="{{ value }}" 
-                    {{# selected }}selected{{/ selected }}>
+            <option value="{{ value }}">
               {{ value }}
             </option>
             {{/ choice }}

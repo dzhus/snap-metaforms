@@ -54,7 +54,7 @@ function setupEventWebsocket() {
 ///
 /// @todo Refactor so that no explicit clearInterval calls are needed.
 function forgetView() {
-    window.clearInterval(FormView.updater);
+    kb.vmRelease(ViewModel);
     FormView.remove();
 }
 
@@ -62,29 +62,11 @@ function forgetView() {
 function setupView(model) {
     FormView = new metaV({"el": $("#form"), 
                           "model": model});
+    ViewModel = new kb.viewModel(FormView.model);
     refreshTimeline();
 
-    function setModelUpdater () {
-        FormView.updater = window.setInterval(
-            function () {
-                FormView.toModel();
-            }, 2000);
-    };
-
-    /// If model is not new, postpone first (and only) form render
-    /// until model.fetch() populates fields (otherwise model updater
-    /// will flush the fields since the form is empty). After that,
-    /// establish inverse mapping from form to model.
-    var fetchCallback;
-    function fetchCallback () {
-        FormView.render();
-        setModelUpdater();
-        FormView.model.unbind("change", fetchCallback);
-    };
-    if (!FormView.model.isNew())
-        FormView.model.bind("change", fetchCallback);
-    else
-        setModelUpdater();
+    FormView.render();
+    ko.applyBindings(ViewModel);
 }
 
 /// Save current model and start fresh form
