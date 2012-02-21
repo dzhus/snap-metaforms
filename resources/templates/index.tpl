@@ -22,17 +22,16 @@
   <body>
     <div id="sidebar">
       <div class="block" id="login">
-        <ifLoggedOut>
-          <img src="/s/images/awesome-inactive.png" />
-          <div style="float: right;">
-            <b>Вход не выполнен</b>
-          </div>
-        </ifLoggedOut>
         <ifLoggedIn>
-          <img src="/s/images/awesome.png" />
-          <div style="float: right;">
-            <loggedInUser />
+          <div style="float:left;">
+            <loggedInUser /><br />
           </div>
+          <div style="float: right;">
+            <a href="/logout/">
+              <img src="/s/images/exit.png" />
+            </a>
+          </div>
+          <div style="clear: both;" />
         </ifLoggedIn>
       </div>
       <div class="block" id="messages" />
