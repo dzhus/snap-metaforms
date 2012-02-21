@@ -1,10 +1,3 @@
-/// Enumeration
-var fieldType = {
-    "text": 0,
-    "number": 1,
-    "bool": 2,
-    "choice": 3};
-
 /// Backbonize a metamodel, set default values for model
 /// 
 /// @return Constructor of Backbone model
@@ -50,53 +43,33 @@ function backbonizeModel(metamodel) {
     return M;
 }
 
-/// Backbonize a metamodel, producing a Backbone.View which renders to
-/// form with data-bind properties for Knockout.
-/// 
-/// @return Constructor of Backbone view
-function backbonizeView(metamodel) {
-    var V = Backbone.View.extend({
-        "initialize": function() {
-            this.render();
-        },
- 
-        "render": function() {
-            var j = this.model.toJSON();
-            /// @todo Update only parts which have changed
-            $(this.el).empty();
+DefaultFieldType = "text";
 
-            /// @todo To dict
-            var lt = $("#longtext-field-template").html();
-            var tt = $("#text-field-template").html();
-            var ct = $("#choice-field-template").html();
-            
-            var contents = "";
+/// Convert metamodel to forest of HTML form elements with appropriate
+/// data-bind parameters for Knockout.
+///
+/// TODO: We can do this on server as well.
+///
+/// @return String with form HTML
+function renderFormView(metamodel) {
+    var templates = [];
 
-            /// Pick an appropriate form widget for each metamodel
-            /// field type and render actual model value in it
-            _.each(metamodel.fields,
-                   function(f) {
-                       var ctx = {field: f, value: j[f.name]};
-                       switch (f.type) {
-                       case fieldType.number:
-                       case fieldType.text:
-                           contents += Mustache.render(tt, ctx);
-                           break
-                       case fieldType.longText:
-                           contents += Mustache.render(lt, ctx);
-                           break
-                       }
-                   });
+    _.each($(".field-template"), 
+           function(tmp) {
+               templates[/\w+/.exec(tmp.id)[0]] = tmp.text;
+           });
 
-            /// @todo Unbreak my XML
-            $(this.el).html(contents);
-        },
-        
-        "remove": function() {
-            $(this.el).empty();
-        }
-    });
-
-
-    return V;
+    var contents = "";
+    /// Pick an appropriate form widget for each metamodel
+    /// field type and render actual model value in it
+    _.each(metamodel.fields, 
+           function (f) {
+               f.type = f.type || DefaultFieldType;
+               if (_.isUndefined(templates[f.type]))
+                   f.type = "unknown";
+               console.log(f);
+               contents += Mustache.render(templates[f.type], f);
+           });
+    
+    return contents;
 }

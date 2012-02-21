@@ -4,16 +4,11 @@
 /// Load current JSON metamodel, build Backbone model and view,
 /// setup view→model updater.
 $(function () {
-    /// @todo getJSON doesn't work
-    $.get("model/",
-          function(data) {
-              metamodel = eval(data);
-                  
+    $.getJSON("model/",
+          function(metamodel) {
               mkBackboneModel = backbonizeModel(metamodel);
-              mkBackboneView = backbonizeView(metamodel);
-              
-              $("#model-name").append(metamodel.name);
-
+              $("#model-name").append(metamodel.title);
+              $("#form").html(renderFormView(metamodel));
               setupView(new mkBackboneModel);
 
               refreshTimeline();
@@ -31,7 +26,7 @@ function refreshTimeline() {
               var tpl = $("#timeline-item").html();
 
               _.each(data, function (id) {
-                  contents += Mustache.render(tpl, {"sel": id == FormView.model.id,
+                  contents += Mustache.render(tpl, {"sel": id == KnockVM.model.id,
                                                     "id": id});
               });
                   
@@ -58,23 +53,19 @@ function setupEventWebsocket() {
 /// @todo Refactor so that no explicit clearInterval calls are needed.
 function forgetView() {
     kb.vmRelease(KnockVM);
-    FormView.remove();
 }
 
 /// Create form for model
 function setupView(model) {
-    FormView = new mkBackboneView({"el": $("#form"), 
-                                   "model": model});
-    KnockVM = new kb.viewModel(FormView.model);
+    KnockVM = new kb.viewModel(model);
     refreshTimeline();
 
-    FormView.render();
     ko.applyBindings(KnockVM);
 }
 
 /// Save current model and start fresh form
 function proceed() {
-    FormView.model.save();
+    KnockVM.model.save();
     forgetView();
     setupView(new mkBackboneModel);
 }
@@ -87,7 +78,7 @@ function restore(id) {
 
 /// Remove currently loaded model from storage and start fresh form
 function remove(id) {
-    FormView.model.destroy();
+    KnockVM.model.destroy();
     forgetView();
     setupView(new mkBackboneModel);
 } 

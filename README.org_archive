@@ -36,3 +36,13 @@ Archived entries from file /home/sphinx/projects/snap-redis-crud/README.org
   results in both Aeson version being compiled into app binary, also
   it's impossible to install the application using `cabal install`.
   
+
+* DONE Perhaps use [[https://github.com/kmalakoff/knockback][Knockback]] to bind view with models instead of custom code.
+  CLOSED: [2012-02-21 Втр 23:30]
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2012-02-21 Втр 23:30
+  :ARCHIVE_FILE: ~/projects/snap-metaforms/README.org
+  :ARCHIVE_OLPATH: Work in progress/Metamodels
+  :ARCHIVE_CATEGORY: README
+  :ARCHIVE_TODO: DONE
+  :END:

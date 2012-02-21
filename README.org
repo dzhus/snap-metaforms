@@ -14,67 +14,72 @@
    field type; form validation, when implemented, could use type
    information as well).
 
-   Required object fields for metamodel are `name` (readable form
-   name) and `fields`, which is in turn a list of field objects with
-   `name`, `type` and `label` fields. `choice` list is required for
-   form fields of type `fieldType.choice`. `default` optionally
-   defines default value for field.
-
    Metamodels are stored in `.js` files under
    `resources/static/js/models/` directory.
 
+   Required object fields for metamodel are `title` (readable form
+   title) and `fields`, which is in turn a list of objects each
+   describing model field. 
+
+   Field object must include `name` key which is the internal name of
+   the field. `default` key specifies the default value of field.
+   Field may include any other fields which may be used further in
+   templates.
+
 *** Valid types
     
-    Types available for metamodels are defined in
-    `resources/static/js/metamodel.js` in `fieldType` enumeration.
+    Type system currently matches HTML input element types, with
+    following values valid for `type`:
+
+    - "text"
+    - "textarea"
+    - "checkbox"
+    - "select"
     
 *** Sample form definition
     (As described in [[http://scp-wiki.wikidot.com/][The SCP Foundation]] archives)
     
     #+BEGIN_SRC javascript
-      ({
+      {
           "name": "SCP",
           "fields": [
               {
                   "name": "code",
-                  "type": fieldType.number,
                   "label": "Code",
               },
               {
                   "name": "title",
-                  "type": fieldType.text,
                   "label": "Title",
               },
               {
                   "name": "foundAt",
-                  "type": fieldType.text,
                   "label": "Original location",
               },
               {
                   "name": "class",
-                  "type": fieldType.choice,
+                  "type": "select",
                   "default": "Euclid",
                   "choice": ["Safe", "Euclid", "Keter"],
-                  "label": "Object class"
+                  "label": "Class"
               },
               {
                   "name": "conditions",
-                  "type": fieldType.longText,
+                  "type": "textarea",
                   "label": "Special Containment Procedures"
               },
               {
                   "name": "description",
-                  "type": fieldType.longText,
+                  "type": "textarea",
                   "label": "Description"
               }
           ]
-      })
+      }
       
     #+END_SRC
-
-    Consider this metamodel is stored in `scp.js` file; then filename
-    without extension (`scp`) is used in URL to access forms built
-    from this metamodel.
+*** Form id
+    Consider a metamodel is stored in `scp.js` file; we define
+    formid as filename without extension (`scp`), which is used in URL
+    to access forms built from this metamodel.
 
 ** Frontend
    
@@ -83,9 +88,9 @@
    view and making automatic server requests to restore/save form
    instance on server (see `/resources/static/js/metamodel.js`). Upon
    loading the page, metamodel JSON is requested from server, and
-   processed into Backbone model and view definitions. Backbone model
-   provides fetch(), save() and destroy() methods which result in
-   appropriate requests being sent to server.
+   processed into Backbone model definition. Backbone model provides
+   fetch(), save() and destroy() methods which result in appropriate
+   requests being sent to server.
 
    `/_/<formid>/` serves title page (which is in fact the same for any
    <formid>) with all the code required to process metamodels on
@@ -95,14 +100,19 @@
    client. Redson snaplet is nested under `_/` URL, which provides
    server API compatible to Backbone.sync.
 
-   View's render function uses [[https://github.com/janl/mustache.js][Mustache.js]] coupled with templates
-   served along with index HTML page to show HTML form.
+   `renderFormView` function builds an HTML form for model fields,
+   which is rendered to page. [[http://knockoutjs.com][Knockout]] is used to keep model data in
+   sync with form contents. [[https://github.com/kmalakoff/knockback][Knockback]] is used to bind Backbone model
+   to form.
 
-   View is capable of inverse mapping from view to model, which is
-   performed every 2 seconds to assure that model changes as user
-   types in form contents. Since Backbone model has save() method
-   bound to its `change` event, this results in form state being
-   constantly saved to server.
+   Render function uses [[https://github.com/janl/mustache.js][Mustache.js]] coupled with templates served
+   along with index HTML page under "field-template" class in
+   "text/template" script elements. Template `id` must contain
+   `<ftype>-field-template` to be used for rendering model fields of
+   type `<ftype>`. If metamodel does not specify a type for field,
+   DefaultFieldType from `metamodel.js` is used. Fields of unknown
+   types are rendered using `unknown-field-template`. Rendering is
+   done using context of field object from metamodel.
 
    `/resource/static/js/load-model.js` provides utility functions to
    instantiate Backbone model & view for form, as well as selecting
@@ -120,7 +130,6 @@
 ** Snap
 
 ** Metamodels
-*** TODO Perhaps use [[https://github.com/kmalakoff/knockback][Knockback]] to bind view with models instead of custom code.
 *** TODO Aggregate fields
     Certain fields should support «explosion» into several detailed
     sub-fields which may be combined (in a custom-defined way) to

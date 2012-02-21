@@ -1,37 +1,34 @@
-({
-    "name": "SCP",
+{
+    "title": "SCP",
     "fields": [
         {
             "name": "code",
-            "type": fieldType.number,
-            "label": "Код",
+            "label": "Код"
         },
         {
             "name": "title",
-            "type": fieldType.text,
-            "label": "Название",
+            "label": "Название"
         },
         {
             "name": "foundAt",
-            "type": fieldType.text,
-            "label": "Место обнаружения",
+            "label": "Место обнаружения"
         },
         {
             "name": "class",
-            "type": fieldType.choice,
+            "type": "select",
             "default": "Евклид",
             "choice": ["Безопасный", "Евклид", "Кетер"],
             "label": "Класс"
         },
         {
             "name": "conditions",
-            "type": fieldType.longText,
+            "type": "textarea",
             "label": "Условия содержания"
         },
         {
             "name": "description",
-            "type": fieldType.longText,
+            "type": "textarea",
             "label": "Описание"
         }
     ]
-})
+}

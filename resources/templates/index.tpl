@@ -57,44 +57,57 @@
     </div>
 
     <!-- Form field templates -->
-    <script type="text/template" id="longtext-field-template">
-      <li class="{{ field.name }} item">
-        <label>{{ field.label }}:<br />
-          <textarea class="{{ field.name }} field" 
-                    name="{{ field.name }}" 
+    <script type="text/template" 
+            class="field-template"
+            id="textarea-field-template">
+      <li class="{{ name }} item">
+        <label>{{ label }}:<br />
+          <textarea class="{{ name }} field" 
+                    name="{{ name }}" 
                     rows="7" cols="70"
-                    data-bind="value: {{ field.name }}"></textarea>
+                    data-bind="value: {{ name }}"></textarea>
         </label>
       </li>
     </script>
 
-    <script type="text/template" id="text-field-template">
-      <li class="{{ field.name }} item">
-        <label>{{ field.label }}:<br />
+    <script type="text/template"
+            class="field-template"
+            id="text-field-template">
+      <li class="{{ name }} item">
+        <label>{{ label }}:<br />
           <input type="text"
-                 class="{{ field.name }} field"
-                 name="{{ field.name }}"
+                 class="{{ name }} field"
+                 name="{{ name }}"
                  size="70"
-                 data-bind="value: {{ field.name }}, 
+                 data-bind="value: {{ name }}, 
                             valueUpdate: 'afterkeydown'" />
         </label>
       </li>
     </script>
 
-    <script type="text/template" id="choice-field-template">
-      <li class="{{ field.name }} item">
-        <label>{{ field.label }}:<br />
-          <select class="{{ field.name }} field"
-                  name="{{ field.name }}"
-                  data-bind="value: {{ field.name }},
+    <script type="text/template"
+            class="field-template"
+            id="select-field-template">
+      <li class="{{ name }} item">
+        <label>{{ label }}:<br />
+          <select class="{{ name }} field"
+                  name="{{ name }}"
+                  data-bind="value: '{{ name }}',
                              valueUpdate: 'afterkeydown'">
             {{# choice }}
-            <option value="{{ value }}">
-              {{ value }}
-            </option>
+            <option value="{{.}}">{{.}}</option>
             {{/ choice }}
           </select>
         </label>
+      </li>
+    </script>
+
+    <!-- Template for fields with unknown type -->
+    <script type="text/template"
+            class="field-template"
+            id="unknown-field-template">
+      <li class="{{ name }} item">
+        {{ name }}
       </li>
     </script>
 
