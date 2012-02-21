@@ -102,6 +102,20 @@
       </li>
     </script>
 
+    <script type="text/template"
+            class="field-template"
+            id="checkbox-field-template">
+      <li class="{{ name }} item">
+        <label><input type="checkbox" 
+                      class="{{ name }} field"
+                      name="{{ name }}"
+                      data-bind="value: {{ name }},
+                                 valueUpdate: 'change'" />
+          {{ label }}
+        </label>
+      </li>
+    </script>
+
     <!-- Template for fields with unknown type -->
     <script type="text/template"
             class="field-template"

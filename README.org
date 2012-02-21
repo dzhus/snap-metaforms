@@ -134,6 +134,8 @@
     Somewhy we can't just render form once and bind it to different
     model instances using ko.applyBindings && kb.vmRelease (field get
     blank when input starts).
+*** TODO Properly bind all field types
+    select and checkbox don't work
 ** Metamodels
 *** TODO Aggregate fields
     Certain fields should support «explosion» into several detailed
