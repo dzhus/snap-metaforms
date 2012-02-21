@@ -1,3 +1,6 @@
+/// Metamodel loading, setting up Backbone model, form template and
+/// Knockback integration.
+
 /// Load current JSON metamodel, build Backbone model and view,
 /// setup view→model updater.
 $(function () {
@@ -6,12 +9,12 @@ $(function () {
           function(data) {
               metamodel = eval(data);
                   
-              metaM = backbonizeModel(metamodel);
-              metaV = backbonizeView(metamodel);
+              mkBackboneModel = backbonizeModel(metamodel);
+              mkBackboneView = backbonizeView(metamodel);
               
               $("#model-name").append(metamodel.name);
 
-              setupView(new metaM);
+              setupView(new mkBackboneModel);
 
               refreshTimeline();
               TimelineUpdater = window.setInterval(refreshTimeline, 5000);
@@ -54,37 +57,37 @@ function setupEventWebsocket() {
 ///
 /// @todo Refactor so that no explicit clearInterval calls are needed.
 function forgetView() {
-    kb.vmRelease(ViewModel);
+    kb.vmRelease(KnockVM);
     FormView.remove();
 }
 
 /// Create form for model
 function setupView(model) {
-    FormView = new metaV({"el": $("#form"), 
-                          "model": model});
-    ViewModel = new kb.viewModel(FormView.model);
+    FormView = new mkBackboneView({"el": $("#form"), 
+                                   "model": model});
+    KnockVM = new kb.viewModel(FormView.model);
     refreshTimeline();
 
     FormView.render();
-    ko.applyBindings(ViewModel);
+    ko.applyBindings(KnockVM);
 }
 
 /// Save current model and start fresh form
 function proceed() {
     FormView.model.save();
     forgetView();
-    setupView(new metaM);
+    setupView(new mkBackboneModel);
 }
 
 /// Save current model and start fresh form
 function restore(id) {
     forgetView();
-    setupView(new metaM({"id": String(id)}));
+    setupView(new mkBackboneModel({"id": String(id)}));
 }
 
 /// Remove currently loaded model from storage and start fresh form
 function remove(id) {
     FormView.model.destroy();
     forgetView();
-    setupView(new metaM);
+    setupView(new mkBackboneModel);
 } 
