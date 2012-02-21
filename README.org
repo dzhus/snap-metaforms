@@ -129,6 +129,11 @@
 
 ** Snap
 
+** Frontend
+*** TODO Render form once for a metamodel
+    Somewhy we can't just render form once and bind it to different
+    model instances using ko.applyBindings && kb.vmRelease (field get
+    blank when input starts).
 ** Metamodels
 *** TODO Aggregate fields
     Certain fields should support «explosion» into several detailed

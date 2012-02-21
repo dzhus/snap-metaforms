@@ -6,9 +6,11 @@
 $(function () {
     $.getJSON("model/",
           function(metamodel) {
+              LoadedMetamodel = metamodel;
+              FormElement = $("#form");
+
               mkBackboneModel = backbonizeModel(metamodel);
               $("#model-name").append(metamodel.title);
-              $("#form").html(renderFormView(metamodel));
               setupView(new mkBackboneModel);
 
               refreshTimeline();
@@ -53,14 +55,23 @@ function setupEventWebsocket() {
 /// @todo Refactor so that no explicit clearInterval calls are needed.
 function forgetView() {
     kb.vmRelease(KnockVM);
+    FormElement.empty();
 }
 
-/// Create form for model
+/// Create form for model and fill it
 function setupView(model) {
     KnockVM = new kb.viewModel(model);
-    refreshTimeline();
 
+    refreshTimeline();
+    
+    FormElement.html(renderFormView(LoadedMetamodel));
     ko.applyBindings(KnockVM);
+
+    /// Wait a bit to populate model fields and bind form elements
+    /// without PUT-backs to server
+    window.setTimeout(function () {
+        KnockVM.model.setupServerSync();
+    }, 1000);
 }
 
 /// Save current model and start fresh form
