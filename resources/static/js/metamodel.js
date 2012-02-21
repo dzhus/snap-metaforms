@@ -14,6 +14,7 @@ function backbonizeModel(metamodel) {
 
     var M = Backbone.Model.extend({
         defaults: defaults,
+        dirtyAttributes: {},
         initialize: function() {
             if (!this.isNew())
                 this.fetch();
@@ -28,6 +29,17 @@ function backbonizeModel(metamodel) {
             };
 
             this.bind("change", realUpdates, this);
+        },
+        set: function(attrs, options){
+            Backbone.Model.prototype.set.call(this, attrs, options);
+            /// TODO _.extend doesn't work here
+            for (k in attrs)
+                this.dirtyAttributes[k] = attrs[k];
+        },
+        toJSON: function () {
+            json = this.dirtyAttributes;
+            this.dirtyAttributes = {};
+            return json;
         },
         urlRoot: "."
     });        
