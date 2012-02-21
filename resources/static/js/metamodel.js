@@ -13,13 +13,13 @@ function backbonizeModel(metamodel) {
           });
 
     var M = Backbone.Model.extend({
-        "defaults": defaults,
-        "initialize": function() {
+        defaults: defaults,
+        initialize: function() {
             if (!this.isNew())
                 this.fetch();
         },
         /// Bind model changes to server sync
-        "setupServerSync": function () {
+        setupServerSync: function () {
             var realUpdates = function () {
                 /// Do not resave model when id is set after
                 /// first POST
@@ -29,7 +29,7 @@ function backbonizeModel(metamodel) {
 
             this.bind("change", realUpdates, this);
         },
-        "urlRoot": "."
+        urlRoot: "."
     });        
 
     return M;
