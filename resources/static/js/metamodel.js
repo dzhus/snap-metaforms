@@ -67,7 +67,6 @@ function renderFormView(metamodel) {
                f.type = f.type || DefaultFieldType;
                if (_.isUndefined(templates[f.type]))
                    f.type = "unknown";
-               console.log(f);
                contents += Mustache.render(templates[f.type], f);
            });
     
