@@ -104,7 +104,7 @@ doLogin = ifTop $ do
 ------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, AppHandler ())]
-routes = [ ("/_/:model/", authOrLogin $ method GET emptyForm)
+routes = [ ("/_/:model/", method GET $ authOrLogin emptyForm)
          , ("/_/:model/model/", authOrLogin $ method GET metamodel)
          , ("/login/", method GET loginForm)
          , ("/login/", method POST doLogin)
