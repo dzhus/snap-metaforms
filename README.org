@@ -14,8 +14,8 @@
    field type; form validation, when implemented, could use type
    information as well).
 
-   Metamodels are stored in `.js` files under
-   `resources/static/js/models/` directory.
+   Metamodels are stored in `.js` files under `resources/models/`
+   directory.
 
    Required object fields for metamodel are `title` (readable form
    title) and `fields`, which is in turn a list of objects each

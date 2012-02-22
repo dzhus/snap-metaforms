@@ -63,7 +63,7 @@ emptyForm = ifTop $ render "index"
 metamodel :: AppHandler ()
 metamodel = ifTop $ do
   modelName <- (BU.toString . fromMaybe "") <$> getParam "model"
-  serveFile $ "resources/static/js/models/" ++ modelName ++ ".js"
+  serveFile $ "resources/models/" ++ modelName ++ ".js"
 
 
 ------------------------------------------------------------------------------
