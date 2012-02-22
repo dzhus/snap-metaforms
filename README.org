@@ -128,6 +128,13 @@
 * To do
 
 ** Snap
+*** TODO Settings
+    We should really add config file with simple syntax.
+    Proposed settings:
+
+    - keyPath;
+    - userDB;
+    - rememberPeriod;
 
 ** Frontend
 *** TODO Render form once for a metamodel
@@ -136,6 +143,13 @@
     blank when input starts).
 *** TODO Properly bind all field types
     select and checkbox don't work
+*** TODO Client settings
+    Some settings need to be served to client code (to use in JS):
+   
+    - serverSyncThrottle;
+    - serverSyncDelay;
+    - timelineUpdateInterval;
+
 ** Metamodels
 *** TODO Aggregate fields
     Certain fields should support «explosion» into several detailed
