@@ -1,11 +1,11 @@
 /// Backbonize a metamodel, set default values for model
-/// 
+///
 /// @return Constructor of Backbone model
 function backbonizeModel(metamodel) {
     var defaults = {};
-    
-    _.each(metamodel.fields, 
-          function(f) { 
+
+    _.each(metamodel.fields,
+          function(f) {
               if (!(_.isUndefined(f.default)))
                   defaults[f.name] = f.default;
               else
@@ -42,7 +42,7 @@ function backbonizeModel(metamodel) {
             return json;
         },
         urlRoot: "."
-    });        
+    });
 
     return M;
 }
@@ -58,7 +58,7 @@ DefaultFieldType = "text";
 function renderFormView(metamodel) {
     var templates = [];
 
-    _.each($(".field-template"), 
+    _.each($(".field-template"),
            function(tmp) {
                templates[/\w+/.exec(tmp.id)[0]] = tmp.text;
            });
@@ -66,13 +66,13 @@ function renderFormView(metamodel) {
     var contents = "";
     /// Pick an appropriate form widget for each metamodel
     /// field type and render actual model value in it
-    _.each(metamodel.fields, 
+    _.each(metamodel.fields,
            function (f) {
                f.type = f.type || DefaultFieldType;
                if (_.isUndefined(templates[f.type]))
                    f.type = "unknown";
                contents += Mustache.render(templates[f.type], f);
            });
-    
+
     return contents;
 }

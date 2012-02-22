@@ -30,9 +30,9 @@ function refreshTimeline() {
                   contents += Mustache.render(tpl, {"sel": id == KnockVM.model.id,
                                                     "id": id});
               });
-                  
+
               $("#timeline").html(contents);
-          });                         
+          });
 }
 
 /// Subscribe to websocket notifications and print messages in
@@ -62,7 +62,7 @@ function setupView(model) {
     KnockVM = new kb.viewModel(model);
 
     refreshTimeline();
-    
+
     FormElement.html(renderFormView(LoadedMetamodel));
     ko.applyBindings(KnockVM);
 
@@ -91,4 +91,4 @@ function remove(id) {
     KnockVM.model.destroy();
     forgetView();
     setupView(new mkBackboneModel);
-} 
+}
