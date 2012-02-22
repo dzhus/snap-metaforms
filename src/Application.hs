@@ -41,7 +41,7 @@ import Snap.Snaplet.Redson
 -- | Application snaplet state type: Redson, Heist.
 data App = App
     { _heist :: Snaplet (Heist App)
-    , _redson :: Snaplet Redson
+    , _redson :: Snaplet (Redson App)
     , _session :: Snaplet SessionManager
     , _auth :: Snaplet (AuthManager App)
     , _startTime :: UTCTime
@@ -124,7 +124,7 @@ sessionTimeout = Nothing
 -- | The application initializer.
 appInit :: SnapletInit App App
 appInit = makeSnaplet "app" "Forms application" Nothing $ do
-  r <- nestSnaplet "_" redson $ redsonInit
+  r <- nestSnaplet "_" redson $ redsonInit auth
 
   h <- nestSnaplet "heist" heist $ heistInit "resources/templates"
   addAuthSplices auth
