@@ -28,7 +28,7 @@ function backbonizeModel(metamodel) {
                     this.save();
             };
 
-            this.bind("change", realUpdates, this);
+            this.bind("change", _.throttle(realUpdates, 500), this);
         },
         set: function(attrs, options){
             Backbone.Model.prototype.set.call(this, attrs, options);
