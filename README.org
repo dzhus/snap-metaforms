@@ -128,14 +128,6 @@
 * To do
 
 ** Snap
-*** TODO Settings
-    We should really add config file with simple syntax.
-    Proposed settings:
-
-    - keyPath;
-    - userDB;
-    - rememberPeriod;
-
 ** Frontend
 *** TODO Render form once for a metamodel
     Somewhy we can't just render form once and bind it to different

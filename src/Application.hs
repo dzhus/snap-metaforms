@@ -11,12 +11,15 @@ module Application (appInit)
 
 where
 
+import Prelude hiding (lookup)
+
 import Control.Monad.IO.Class
 import Data.Functor
 import Data.Maybe
 
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.UTF8 as BU (toString)
+import Data.Configurator
 import Data.Lens.Template
 import Data.Time.Clock
 
@@ -113,13 +116,6 @@ routes = [ ("/_/:model/", method GET $ authOrLogin emptyForm)
          ]
 
 
--- | Path to AES key file
-keyPath :: FilePath
-keyPath = "resources/private/" ++ defaultKeyFile
-
-userDB :: FilePath
-userDB = "resources/private/users.json"
-
 sessionTimeout :: Maybe Int
 sessionTimeout = Nothing
 
@@ -133,10 +129,27 @@ appInit = makeSnaplet "app" "Forms application" Nothing $ do
   h <- nestSnaplet "heist" heist $ heistInit "resources/templates"
   addAuthSplices auth
 
+  cfg <- getSnapletUserConfig
+  sesKey <- liftIO $
+            lookupDefault "resources/private/client_session_key.aes"
+                          cfg "session-key"
+  rmbKey <- liftIO $
+            lookupDefault "resources/private/site_key.txt"
+                          cfg "remember-key"
+  rmbPer <- liftIO $
+            lookupDefault 14 
+                          cfg "remember-period"
+  authDb <- liftIO $
+            lookupDefault "resources/private/users.json"
+                          cfg "user-db"
+
   s <- nestSnaplet "session" session $
-       initCookieSessionManager keyPath "_session" sessionTimeout
+       initCookieSessionManager sesKey "_session" sessionTimeout
   a <- nestSnaplet "auth" auth $
-       initJsonFileAuthManager defAuthSettings session userDB
+       initJsonFileAuthManager
+       defAuthSettings{ asSiteKey = rmbKey
+                      , asRememberPeriod = Just (rmbPer * 24 * 60 * 60)}
+                               session authDb
 
   sTime <- liftIO getCurrentTime
 

@@ -46,3 +46,20 @@ Archived entries from file /home/sphinx/projects/snap-redis-crud/README.org
   :ARCHIVE_CATEGORY: README
   :ARCHIVE_TODO: DONE
   :END:
+
+* DONE Settings
+  CLOSED: [2012-02-23 Чтв 00:08]
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2012-02-23 Чтв 00:08
+  :ARCHIVE_FILE: ~/projects/snap-metaforms/README.org
+  :ARCHIVE_OLPATH: To do/Snap
+  :ARCHIVE_CATEGORY: README
+  :ARCHIVE_TODO: DONE
+  :END:
+  We should really add config file with simple syntax.
+  Proposed settings:
+
+  - keyPath;
+  - userDB;
+  - rememberPeriod;
+
