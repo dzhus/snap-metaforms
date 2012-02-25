@@ -3,14 +3,15 @@
 /// @return Constructor of Backbone model
 function backbonizeModel(metamodel) {
     var defaults = {};
-
-    _.each(metamodel.fields,
-          function(f) {
-              if (!(_.isUndefined(f.default)))
-                  defaults[f.name] = f.default;
-              else
-                  defaults[f.name] = null;
-          });
+    
+    var fields = metamodel.fields;
+    
+    for (k in fields) {
+        if (!(_.isUndefined(fields[k].default)))
+            defaults[k] = fields[k].default;
+        else
+            defaults[k] = null;
+    };
 
     var M = Backbone.Model.extend({
         defaults: defaults,
@@ -85,13 +86,16 @@ function renderFormView(metamodel) {
     var contents = "";
     /// Pick an appropriate form widget for each metamodel
     /// field type and render actual model value in it
-    _.each(metamodel.fields,
-           function (f) {
+    var fields = metamodel.fields;
+    
+    for (k in fields) {
+               var f = fields[k];
                f.type = f.type || DefaultFieldType;
                if (_.isUndefined(templates[f.type]))
                    f.type = "unknown";
-               contents += Mustache.render(templates[f.type], f);
-           });
+               var ctx = _.extend(f, {"name": k});
+               contents += Mustache.render(templates[f.type], ctx);
+           };
 
     return contents;
 }

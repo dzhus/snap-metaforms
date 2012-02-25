@@ -18,13 +18,12 @@
    directory.
 
    Required object fields for metamodel are `title` (readable form
-   title) and `fields`, which is in turn a list of objects each
-   describing model field. 
+   title) and `fields`, which is a hash where keys are field names and
+   values are in their turn objects describing each field.
 
-   Field object must include `name` key which is the internal name of
-   the field. `default` key specifies the default value of field.
+   `default` key of field object specifies the default value of field.
    Field may include any other fields which may be used further in
-   templates.
+   templates. `type` key currently sets the type of field used.
    
 *** Valid field names
     
@@ -45,38 +44,36 @@
     
     #+BEGIN_SRC javascript
       {
-          "name": "SCP",
-          "fields": [
-              {
-                  "name": "code",
-                  "label": "Code",
+          "title": "SCP",
+          "fields": {
+              "code": {
+                  "label": "Code"
               },
-              {
-                  "name": "title",
-                  "label": "Title",
+              "title": {
+                  "label": "Title"
               },
-              {
-                  "name": "foundAt",
-                  "label": "Original location",
+              "foundAt": {
+                  "label": "Original location"
               },
-              {
-                  "name": "dangerClass",
+              "dangerClass": {
                   "type": "select",
                   "default": "Euclid",
                   "choice": ["Safe", "Euclid", "Keter"],
                   "label": "Class"
               },
-              {
-                  "name": "conditions",
+              "jobsDone": {
+                  "label": "Research complete",
+                  "type": "checkbox"
+              },
+              "conditions": {
                   "type": "textarea",
                   "label": "Special Containment Procedures"
               },
-              {
-                  "name": "description",
+              "description": {
                   "type": "textarea",
                   "label": "Description"
               }
-          ]
+          }
       }
       
     #+END_SRC
