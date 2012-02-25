@@ -110,7 +110,7 @@
         <label><input type="checkbox" 
                       class="{{ name }} field"
                       name="{{ name }}"
-                      data-bind="value: {{ name }},
+                      data-bind="checked: {{ name }},
                                  valueUpdate: 'change'" />
           {{ label }}
         </label>

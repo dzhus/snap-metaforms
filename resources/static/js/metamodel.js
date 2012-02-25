@@ -19,6 +19,7 @@ function backbonizeModel(metamodel) {
             if (!this.isNew())
                 this.fetch();
         },
+        metamodel: metamodel,
         /// Bind model changes to server sync
         setupServerSync: function () {
             var realUpdates = function () {
@@ -32,12 +33,30 @@ function backbonizeModel(metamodel) {
         },
         set: function(attrs, options){
             Backbone.Model.prototype.set.call(this, attrs, options);
+            /// Queue new values to be saved on server using
+            /// dirtyAttributes
+            ///
             /// TODO _.extend doesn't work here
             for (k in attrs)
                 this.dirtyAttributes[k] = attrs[k];
         },
+        parse: function(json) {
+            for (k in json) {
+                if (json[k] == "0")
+                    json[k] = false;
+                else if (json[k] == "1")
+                    json[k] = true;
+            }                    
+            return json;
+        },        
         toJSON: function () {
+            /// Send only dirtyAttributes instead of the whole object
             json = this.dirtyAttributes;
+            /// Map boolean values to string "0"/"1"'s for server
+            /// compatibility
+            for (k in json)
+                if (_.isBoolean(json[k]))
+                    json[k] = String(json[k] ? "1" : "0");
             this.dirtyAttributes = {};
             return json;
         },

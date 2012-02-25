@@ -21,6 +21,11 @@
             "label": "Класс"
         },
         {
+            "name": "jobsDone",
+            "label": "Работы завершены",
+            "type": "checkbox"
+        },
+        {
             "name": "conditions",
             "type": "textarea",
             "label": "Условия содержания"

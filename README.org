@@ -138,7 +138,11 @@
     model instances using ko.applyBindings && kb.vmRelease (field get
     blank when input starts).
 *** TODO Properly bind all field types
-    select and checkbox don't work
+    - [X] select — (do not use `class` field type to avoid clash with
+      built-in keywords);
+    - [ ] checkbox (Redis uses does not have boolean value type so we
+      should perform bi-directional mapping from "0" to false and "1"
+      to true at Knockback layer);
 *** TODO Client settings
     Some settings need to be served to client code (to use in JS):
    
