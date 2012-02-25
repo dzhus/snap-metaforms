@@ -41,13 +41,18 @@ function backbonizeModel(metamodel) {
             for (k in attrs)
                 this.dirtyAttributes[k] = attrs[k];
         },
+        /// For checkbox fields, translate "0"/"1" to false/true
+        /// boolean.
         parse: function(json) {
+            var m = this.metamodel;
             for (k in json) {
-                if (json[k] == "0")
-                    json[k] = false;
-                else if (json[k] == "1")
-                    json[k] = true;
-            }                    
+                if (m.fields[k].type == "checkbox") {
+                    if (json[k] == "1")
+                        json[k] = true;
+                    else
+                        json[k] = false;
+                }
+            }
             return json;
         },        
         toJSON: function () {

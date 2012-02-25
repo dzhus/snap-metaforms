@@ -111,7 +111,7 @@
                       class="{{ name }} field"
                       name="{{ name }}"
                       data-bind="checked: {{ name }},
-                                 valueUpdate: 'change'" />
+                                 valueUpdate: 'afterkeydown'" />
           {{ label }}
         </label>
       </li>
