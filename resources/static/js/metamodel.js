@@ -3,15 +3,15 @@
 /// @return Constructor of Backbone model
 function backbonizeModel(metamodel) {
     var defaults = {};
-    
-    var fields = metamodel.fields;
-    
-    for (k in fields) {
-        if (!(_.isUndefined(fields[k].default)))
-            defaults[k] = fields[k].default;
-        else
-            defaults[k] = null;
-    };
+    var fieldHash = {};
+    _.each(metamodel.fields,
+          function(f) {
+              if (!(_.isUndefined(f.default)))
+                  defaults[f.name] = f.default;
+              else
+                  defaults[f.name] = null;
+              fieldHash[f.name] = f;
+          });
 
     var M = Backbone.Model.extend({
         defaults: defaults,
@@ -21,6 +21,7 @@ function backbonizeModel(metamodel) {
                 this.fetch();
         },
         metamodel: metamodel,
+        fieldHash: fieldHash,
         /// Bind model changes to server sync
         setupServerSync: function () {
             var realUpdates = function () {
@@ -46,7 +47,7 @@ function backbonizeModel(metamodel) {
         parse: function(json) {
             var m = this.metamodel;
             for (k in json) {
-                if (m.fields[k].type == "checkbox") {
+                if (this.fieldHash[k].type == "checkbox") {
                     if (json[k] == "1")
                         json[k] = true;
                     else
@@ -91,16 +92,13 @@ function renderFormView(metamodel) {
     var contents = "";
     /// Pick an appropriate form widget for each metamodel
     /// field type and render actual model value in it
-    var fields = metamodel.fields;
-    
-    for (k in fields) {
-               var f = fields[k];
+    _.each(metamodel.fields,
+           function (f) {
                f.type = f.type || DefaultFieldType;
                if (_.isUndefined(templates[f.type]))
                    f.type = "unknown";
-               var ctx = _.extend(f, {"name": k});
-               contents += Mustache.render(templates[f.type], ctx);
-           };
+               contents += Mustache.render(templates[f.type], f);
+           });
 
     return contents;
 }

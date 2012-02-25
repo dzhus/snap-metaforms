@@ -1,32 +1,42 @@
 {
     "title": "SCP",
-    "fields": {
-        "code": {
-            "label": "Код"
+    "fields": [
+        {
+            "name": "code",
+            "label": "Код",
+            "canRead": ["front"]
         },
-        "title": {
-            "label": "Название"
+        {
+            "name": "title",
+            "label": "Название",
+            "canRead": ["front"]
         },
-        "foundAt": {
-            "label": "Место обнаружения"
+        {
+            "name": "foundAt",
+            "label": "Место обнаружения",
+            "canRead": ["front"]
         },
-        "dangerClass": {
+        {
+            "name": "dangerClass",
             "type": "select",
             "default": "Евклид",
             "choice": ["Безопасный", "Евклид", "Кетер"],
             "label": "Класс"
         },
-        "jobsDone": {
+        {
+            "name": "jobsDone",
             "label": "Работы завершены",
             "type": "checkbox"
         },
-        "conditions": {
+        {
+            "name": "conditions",
             "type": "textarea",
             "label": "Условия содержания"
         },
-        "description": {
+        {
+            "name": "description",
             "type": "textarea",
             "label": "Описание"
         }
-    }
+    ]
 }
