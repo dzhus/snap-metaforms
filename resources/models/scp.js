@@ -14,7 +14,7 @@
             "label": "Место обнаружения"
         },
         {
-            "name": "class",
+            "name": "dangerClass",
             "type": "select",
             "default": "Евклид",
             "choice": ["Безопасный", "Евклид", "Кетер"],

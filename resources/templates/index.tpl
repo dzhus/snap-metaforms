@@ -93,7 +93,7 @@
         <label>{{ label }}:<br />
           <select class="{{ name }} field"
                   name="{{ name }}"
-                  data-bind="value: '{{ name }}',
+                  data-bind="value: {{ name }},
                              valueUpdate: 'afterkeydown'">
             {{# choice }}
             <option value="{{.}}">{{.}}</option>

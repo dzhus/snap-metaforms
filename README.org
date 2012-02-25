@@ -25,6 +25,10 @@
    the field. `default` key specifies the default value of field.
    Field may include any other fields which may be used further in
    templates.
+   
+*** Valid field names
+    
+    `class` cannot be used as a field name.
 
 *** Valid types
     
@@ -56,7 +60,7 @@
                   "label": "Original location",
               },
               {
-                  "name": "class",
+                  "name": "dangerClass",
                   "type": "select",
                   "default": "Euclid",
                   "choice": ["Safe", "Euclid", "Keter"],
