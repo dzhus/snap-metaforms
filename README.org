@@ -122,9 +122,9 @@
    methods which result in appropriate requests being sent to server.
 
    `/_/<formid>/` serves title page (which is in fact the same for any
-   <formid>) with all the code required to process metamodels on
-   client side. Redson snaplet is nested under `_/` URL, which
-   provides server API compatible to Backbone.sync.
+   <formid>) with all the code required to process models on client
+   side. Redson snaplet is nested under `_/` URL, which provides
+   server API compatible to Backbone.sync.
 
    `renderFormView` function builds an HTML form for model fields,
    which is rendered to page. [[http://knockoutjs.com][Knockout]] is used to keep model data in
@@ -135,10 +135,9 @@
    along with index HTML page under "field-template" class in
    "text/template" script elements. Template `id` must contain
    `<ftype>-field-template` to be used for rendering model fields of
-   type `<ftype>`. If metamodel does not specify a type for field,
-   DefaultFieldType from `metamodel.js` is used. Fields of unknown
-   types are rendered using `unknown-field-template`. Rendering is
-   done using context of field object from metamodel.
+   type `<ftype>`. Fields of unknown types are rendered using
+   `unknown-field-template`. Rendering is done using context of field
+   object from metamodel.
 
    `/resource/static/js/load-model.js` provides utility functions to
    instantiate Backbone model & view for form, as well as selecting
@@ -155,7 +154,7 @@
 
 ** Snap
 ** Frontend
-*** TODO Render form once for a metamodel
+*** TODO Render form once for a model
     Somewhy we can't just render form once and bind it to different
     model instances using ko.applyBindings && kb.vmRelease (field get
     blank when input starts).
@@ -166,7 +165,7 @@
     - serverSyncDelay;
     - timelineUpdateInterval;
 
-** Metamodels
+** Metamodel
 *** TODO Aggregate fields
     Certain fields should support «explosion» into several detailed
     sub-fields which may be combined (in a custom-defined way) to
