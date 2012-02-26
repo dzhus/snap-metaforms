@@ -30,10 +30,10 @@
    definition. Backbone model provides fetch(), save() and destroy()
    methods which result in appropriate requests being sent to server.
 
-   `/_/<formid>/` serves title page (which is in fact the same for any
-   <formid>) with all the code required to process models on client
-   side. Redson snaplet is nested under `_/` URL, which provides
-   server API compatible to Backbone.sync.
+   `/` serves title page (which is in fact the same for any <formid>)
+   with all the code required to process models on client side. Redson
+   snaplet is nested under `_/` URL, which provides server API
+   compatible to Backbone.sync.
 
    `renderFormView` function builds an HTML form for model fields,
    which is rendered to page. [[http://knockoutjs.com][Knockout]] is used to keep model data in
