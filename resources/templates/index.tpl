@@ -131,6 +131,12 @@
     </script>
 
     <script type="text/template"
+            id="canUpdate-permission-template">
+      <button class="btn" type="button"
+              onClick="KnockVM.model.save();">Сохранить</button>
+    </script>
+
+    <script type="text/template"
             id="canDelete-permission-template">
       <button class="btn danger" type="button"
               style="float:right;"
