@@ -64,6 +64,7 @@
         <label>{{ label }}:<br />
           <textarea class="{{ name }} field" 
                     name="{{ name }}" 
+                    {{# readonly }}readonly{{/ readonly }}
                     rows="7" cols="70"
                     data-bind="value: {{ name }},
                                valueUpdate: 'afterkeydown'" />
@@ -79,6 +80,7 @@
           <input type="text"
                  class="{{ name }} field"
                  name="{{ name }}"
+                 {{# readonly }}readonly{{/ readonly }}
                  size="70"
                  data-bind="value: {{ name }}, 
                             valueUpdate: 'afterkeydown'" />
@@ -93,6 +95,7 @@
         <label>{{ label }}:<br />
           <select class="{{ name }} field"
                   name="{{ name }}"
+                  {{# readonly }}readonly{{/ readonly }}
                   data-bind="value: {{ name }},
                              valueUpdate: 'afterkeydown'">
             {{# choice }}
@@ -110,6 +113,7 @@
         <label><input type="checkbox" 
                       class="{{ name }} field"
                       name="{{ name }}"
+                      {{# readonly }}readonly{{/ readonly }}
                       data-bind="checked: {{ name }},
                                  valueUpdate: 'change'" />
           {{ label }}

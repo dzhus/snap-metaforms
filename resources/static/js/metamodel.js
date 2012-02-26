@@ -99,7 +99,8 @@ function renderFormView(metamodel) {
                    fType = "unknown";
                else
                    fType = f.type;
-               contents += Mustache.render(templates[fType], f);
+               contents += Mustache.render(templates[fType],
+                                           _.extend(f, {readonly: !f.canWrite}));
            });
 
     return contents;

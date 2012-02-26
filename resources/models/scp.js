@@ -9,7 +9,7 @@
         {
             "name": "title",
             "label": "Название",
-            "canRead": ["front"]
+            "canWrite": true
         },
         {
             "name": "foundAt",
@@ -21,22 +21,26 @@
             "type": "select",
             "default": "Евклид",
             "choice": ["Безопасный", "Евклид", "Кетер"],
-            "label": "Класс"
+            "label": "Класс",
+            "canRead": ["front"]
         },
         {
             "name": "jobsDone",
             "label": "Работы завершены",
-            "type": "checkbox"
+            "type": "checkbox",
+            "canRead": ["front"]
         },
         {
             "name": "conditions",
             "type": "textarea",
-            "label": "Условия содержания"
+            "label": "Условия содержания",
+            "canRead": ["front"]
         },
         {
             "name": "description",
             "type": "textarea",
-            "label": "Описание"
+            "label": "Описание",
+            "canRead": ["front"]
         }
     ]
 }
