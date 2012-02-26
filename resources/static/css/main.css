@@ -46,7 +46,7 @@ select {
 input[readonly],
 textarea[readonly],
 select[readonly] {
-  background-color: #ffb8b8;
+  background-color: #eee;
 }
 
 input:focus, textarea:focus {
