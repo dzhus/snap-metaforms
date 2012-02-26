@@ -17,7 +17,7 @@ function backbonizeModel(model) {
         defaults: defaults,
         /// Temporary storage for attributes queued for sending to
         /// server
-        dirtyAttributes: {},
+        attributeQueue: {},
         initialize: function() {
             if (!this.isNew())
                 this.fetch();
@@ -37,7 +37,7 @@ function backbonizeModel(model) {
         },
         set: function(attrs, options){
             Backbone.Model.prototype.set.call(this, attrs, options);
-            /// Queue new values in dirtyAttributes
+            /// Push new values in attributeQueue
             ///
             /// Never send "id", never send anything if user has no
             /// canUpdate permission.
@@ -47,7 +47,12 @@ function backbonizeModel(model) {
                 if (k != "id" &&
                     this.model.canUpdate &&
                     this.fieldHash[k].canWrite)
-                    this.dirtyAttributes[k] = attrs[k];
+                    this.attributeQueue[k] = attrs[k];
+        },
+        /// Do not send empty updates to server
+        save: function(attrs, options) {
+            if (!_.isEmpty(this.attributeQueue))
+                Backbone.Model.prototype.save.call(this, attrs, options);
         },
         /// For checkbox fields, translate "0"/"1" to false/true
         /// boolean.
@@ -64,14 +69,14 @@ function backbonizeModel(model) {
             return json;
         },        
         toJSON: function () {
-            /// Send only dirtyAttributes instead of the whole object
-            json = this.dirtyAttributes;
+            /// Send only attributeQueue instead of the whole object
+            var json = this.attributeQueue;
             /// Map boolean values to string "0"/"1"'s for server
             /// compatibility
             for (k in json)
                 if (_.isBoolean(json[k]))
                     json[k] = String(json[k] ? "1" : "0");
-            this.dirtyAttributes = {};
+            this.attributeQueue = {};
             return json;
         },
         urlRoot: "."
