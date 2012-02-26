@@ -8,11 +8,11 @@
 
 ** Models
 
-   Form definitions (models) use JSON syntax defined by [[https://github.com/dzhus/snaplet-redson][snaplet-redson]]
-   and basically enumerate fields present in the form. Homebrew basic
-   type system is used (currently view widget for field is rendered
-   with regard to field type; form validation, when implemented, could
-   use type information as well).
+   Form definitions (models) use JSON syntax supported by
+   [[https://github.com/dzhus/snaplet-redson][snaplet-redson]] and basically enumerate fields present in the form.
+   Homebrew basic type system is used (currently view widget for field
+   is rendered with regard to field type; form validation, when
+   implemented, could use type information as well).
 
    Models are stored in `.js` files under `resources/models/`
    directory.
