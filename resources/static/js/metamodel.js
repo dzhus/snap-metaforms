@@ -73,8 +73,6 @@ function backbonizeModel(metamodel) {
     return M;
 }
 
-DefaultFieldType = "text";
-
 /// Convert metamodel to forest of HTML form elements with appropriate
 /// data-bind parameters for Knockout.
 ///
