@@ -99,7 +99,7 @@ doLogin = ifTop $ do
 ------------------------------------------------------------------------------
 -- | The application's routes.
 routes :: [(ByteString, AppHandler ())]
-routes = [ ("/_/:model/", method GET $ authOrLogin emptyForm)
+routes = [ ("/", method GET $ authOrLogin emptyForm)
          , ("/login/", method GET loginForm)
          , ("/login/", method POST doLogin)
          , ("/logout/", with auth $ logout >> redirectToLogin)

@@ -4,30 +4,42 @@
 /// Load current JSON model, build Backbone model and view,
 /// setup view→model updater.
 $(function () {
-    $.getJSON("model/",
-          function(model) {
-              LoadedModel = model;
-              FormElement = $("#form");
+    window.global = {
+        formElement: $("#form"),
+        knockVM: {},
+        loadedModel: {},
+        modelName: null,
+        mkBackboneModel: null,
+    };
 
-              mkBackboneModel = backbonizeModel(model);
-              $("#model-name").append(model.title);
-              setupView(new mkBackboneModel);
-
-              TimelineUpdater = window.setInterval(refreshTimeline, 5000);
-
-              setupEventWebsocket();
-          });
+    setupModel("scp");
 });
+
+function modelMethod(modelName, method) {
+    return "/_/" + modelName + "/" + method;
+}
+
+/// Load model definition, set up globals and TimelineUpdater
+function setupModel(modelName) {
+    $.getJSON(modelMethod(modelName, "model"),
+              function(model) {
+                  global.modelName = modelName;
+                  global.loadedModel = model;
+                  global.mkBackboneModel = backbonizeModel(model);
+                  $("#model-name").append(model.title);
+                  setupView(new global.mkBackboneModel);
+              });
+}
 
 /// Show recently created models, highlight the currently loaded one
 function refreshTimeline() {
-    $.get("timeline/",
+    $.get(modelMethod(global.modelName, "timeline"),
           function(data) {
               var contents = "";
               var tpl = $("#timeline-item").html();
 
               _.each(data, function (id) {
-                  contents += Mustache.render(tpl, {"sel": id == KnockVM.model.id,
+                  contents += Mustache.render(tpl, {"sel": id == global.knockVM.model.id,
                                                     "id": id});
               });
 
@@ -35,65 +47,49 @@ function refreshTimeline() {
           });
 }
 
-/// Subscribe to websocket notifications and print messages in
-/// #messages
-function setupEventWebsocket() {
-    var ws = "ws://" + location.host + location.pathname + "events/";
-    if ("undefined" == typeof(MozWebSocket))
-        EventWebsocket = new WebSocket(ws);
-    else
-        EventWebsocket = new MozWebSocket(ws);
-
-    EventWebsocket.onmessage = function(m) {
-        var obj = JSON.parse(m.data);
-        var tpl = $("#message-" + obj.event).html();
-        $("#messages").append(Mustache.render(tpl, obj));
-    }
-};
-
 /// Delete form, release observables
 function forgetView() {
-    kb.vmRelease(KnockVM);
-    FormElement.empty();
+    kb.vmRelease(global.knockVM);
+    global.formElement.empty();
 }
 
 /// Create form for model and fill it
-function setupView(model) {
-    KnockVM = new kb.viewModel(model);
+function setupView(instance) {
+    global.knockVM = new kb.viewModel(instance);
 
     refreshTimeline();
 
-    FormElement.html(renderFormView(LoadedModel));
-    ko.applyBindings(KnockVM);
+    global.formElement.html(renderFormView(global.loadedModel));
+    ko.applyBindings(global.knockVM);
 
     /// Wait a bit to populate model fields and bind form elements
     /// without PUT-backs to server
     window.setTimeout(function () {
-        KnockVM.model.setupServerSync();
+        global.knockVM.model.setupServerSync();
     }, 1000);
 }
 
-/// Save current model
+/// Save current model instance
 function save() {
-    KnockVM.model.save();
+    global.knockVM.model.save();
 }
 
-/// Save current model and start fresh form
+/// Save current model instance and start fresh form
 function proceed() {
     save();
     forgetView();
-    setupView(new mkBackboneModel);
+    setupView(new global.mkBackboneModel);
 }
 
-/// Load existing model
+/// Load existing model instance
 function restore(id) {
     forgetView();
-    setupView(new mkBackboneModel({"id": String(id)}));
+    setupView(new global.mkBackboneModel({"id": String(id)}));
 }
 
-/// Remove currently loaded model from storage and start fresh form
+/// Remove currently loaded instance from storage and start fresh form
 function remove(id) {
-    KnockVM.model.destroy();
+    global.knockVM.model.destroy();
     forgetView();
-    setupView(new mkBackboneModel);
+    setupView(new global.mkBackboneModel);
 }
