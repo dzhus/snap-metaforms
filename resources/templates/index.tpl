@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <title>Заполнятор</title>
-    <link rel="stylesheet" href="/s/css/main.css" />
+    <link rel="stylesheet" href="/s/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/s/css/local.css" />
 
     <!-- DOM manipulation -->
     <script src="/s/js/thirdparty/jquery-1.7.1.min.js" />
@@ -25,68 +26,84 @@
     <script src="/s/js/load-model.js" />
   </head>
   <body>
-    <div id="sidebar">
-      <div class="block" id="login">
-        <ifLoggedIn>
-          <div style="float:left;">
-            <loggedInUser /><br />
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span2">
+          <div class="box" id="login">
+            <ifLoggedIn>
+              <div style="float:left;">
+                <i class="icon-user" /><loggedInUser /><br />
+              </div>
+              <div style="float: right;">
+                <a href="/logout/">
+                  <i class="icon-off" />
+                </a>
+              </div>
+              <div style="clear: both;" />
+            </ifLoggedIn>
           </div>
-          <div style="float: right;">
-            <a href="/logout/">
-              <img src="/s/images/exit.png" alt="Выход"/>
-            </a>
-          </div>
-          <div style="clear: both;" />
-        </ifLoggedIn>
-      </div>
-      <div class="block" id="messages" />
-      <div class="block" id="timeline" />
-    </div>
 
-    <div id="container" class="block">
-      <h1>Заполнение формы «<span id="model-name" />»</h1>
-      <div id="message" style="display: none;" />
-      <form id="form">
-      </form>
+          <div class="box" id="messages" />
+
+          <div class="box" id="timeline" />
+        </div>
+
+        <div class="span8">
+          <div class="box">
+            <fieldset>
+              <legend id="model-name" />
+              <form id="form" class="form-horizontal" />
+            </fieldset>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Form field templates -->
     <script type="text/template" 
             class="field-template"
             id="textarea-field-template">
-      <div class="{{ name }} item">
-        <label>{{ label }}:<br />
-          <textarea class="{{ name }} field" 
+      <div class="control-group">
+        <div class="control-label">
+          <label>{{ label }}</label>
+        </div>
+        <div class="controls">
+          <textarea class="{{ name }} field span7"
                     name="{{ name }}" 
                     {{# readonly }}disabled{{/ readonly }}
-                    rows="7" cols="70"
+                    rows="7"
                     data-bind="value: {{ name }},
                                valueUpdate: 'afterkeydown'" />
-        </label>
+        </div>
       </div>
     </script>
 
     <script type="text/template"
             class="field-template"
             id="text-field-template">
-      <div class="{{ name }} item">
-        <label>{{ label }}:<br />
+      <div class="control-group">
+        <div class="control-label">
+          <label>{{ label }}</label>
+        </div>
+        <div class="controls">
           <input type="text"
-                 class="{{ name }} field"
+                 class="{{ name }} field span7"
                  name="{{ name }}"
                  {{# readonly }}disabled{{/ readonly }}
-                 size="70"
                  data-bind="value: {{ name }}, 
                             valueUpdate: 'afterkeydown'" />
-        </label>
+        </div>
       </div>
     </script>
 
     <script type="text/template"
             class="field-template"
             id="select-field-template">
-      <div class="{{ name }} item">
-        <label>{{ label }}:<br />
+      <div class="control-group">
+        <div class="control-label">
+          <label>{{ label }}</label>
+        </div>
+        <div class="controls">
           <select class="{{ name }} field"
                   name="{{ name }}"
                   {{# readonly }}disabled{{/ readonly }}
@@ -96,22 +113,24 @@
             <option value="{{.}}">{{.}}</option>
             {{/ choice }}
           </select>
-        </label>
+        </div>
       </div>
     </script>
 
     <script type="text/template"
             class="field-template"
             id="checkbox-field-template">
-      <div class="{{ name }} item">
-        <label><input type="checkbox" 
-                      class="{{ name }} field"
-                      name="{{ name }}"
-                      {{# readonly }}disabled{{/ readonly }}
-                      data-bind="checked: {{ name }},
-                                 valueUpdate: 'change'" />
-          {{ label }}
-        </label>
+      <div class="control-group">
+        <div class="controls">
+          <label class="checkbox inline"><input type="checkbox" 
+                                                class="{{ name }} field"
+                                                name="{{ name }}"
+                                                {{# readonly }}disabled{{/ readonly }}
+                                                data-bind="checked: {{ name }},
+                                                           valueUpdate: 'change'" />
+            {{ label }}
+          </label>
+        </div>
       </div>
     </script>
 
@@ -125,26 +144,30 @@
     </script>
     
     <script type="text/template"
-            id="canCreate-permission-template">
-      <button class="btn" type="button"
-              onClick="proceed();">Сохранить и начать новую</button>
-    </script>
-
-    <script type="text/template"
-            id="canUpdate-permission-template">
-      <button class="btn" type="button"
-              onClick="KnockVM.model.save();">Сохранить</button>
-    </script>
-
-    <script type="text/template"
-            id="canDelete-permission-template">
-      <button class="btn danger" type="button"
-              style="float:right;"
-              onClick="remove();">Удалить</button>
+            id="permission-template">
+      <div class="form-actions">
+        {{# canUpdate }}
+        <button class="btn btn-success" type="button"
+                onClick="save();">
+          <i class="icon-pencil" /> Сохранить</button>
+        {{/ canUpdate }}
+        {{# canCreate }}
+        <button class="btn" type="button"
+                onClick="proceed();">
+          <i class="icon-file" /> Начать новую</button>
+        {{/ canCreate }}
+        {{# canDelete }}
+        <button class="btn btn-danger" type="button"
+                style="float:right;"
+                onClick="remove();">
+          <i class="icon-trash" /> Удалить</button>
+        {{/ canDelete }}
+        <div style="clear: both;" />
+      </div>
     </script>
 
     <script type="text/template" id="timeline-item">
-      <span class="btn{{# sel }} info{{/ sel }}"
+      <span class="btn{{# sel }} btn-info{{/ sel }}"
             id="timeline-{{id}}"
             onClick="restore({{ id }});">{{ id }} </span>
     </script>

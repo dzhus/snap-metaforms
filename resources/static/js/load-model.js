@@ -73,9 +73,14 @@ function setupView(model) {
     }, 1000);
 }
 
+/// Save current model
+function save() {
+    KnockVM.model.save();
+}
+
 /// Save current model and start fresh form
 function proceed() {
-    KnockVM.model.save();
+    save();
     forgetView();
     setupView(new mkBackboneModel);
 }

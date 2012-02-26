@@ -119,12 +119,7 @@ function renderFormView(model) {
            });
     
     /// Add HTML to contents for non-false permissions
-    var permissions = ["canCreate", "canUpdate", "canDelete"];
-    _.each(permissions,
-           function (p) {
-               if (model[p])
-                   contents += $("#" + p + "-permission-template").text();
-           });
+    contents += Mustache.render($("#permission-template").text(), model);
 
     return contents;
 }
