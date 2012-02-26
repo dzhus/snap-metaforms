@@ -62,14 +62,6 @@ emptyForm = ifTop $ render "index"
 
 
 ------------------------------------------------------------------------------
--- | Serve JSON metamodel.
-metamodel :: AppHandler ()
-metamodel = ifTop $ do
-  modelName <- (BU.toString . fromMaybe "") <$> getParam "model"
-  serveFile $ "resources/models/" ++ modelName ++ ".js"
-
-
-------------------------------------------------------------------------------
 -- | Redirect using 303 See Other to login form.
 --
 -- Used after unsuccessful access/login attempt or logout.
@@ -108,7 +100,6 @@ doLogin = ifTop $ do
 -- | The application's routes.
 routes :: [(ByteString, AppHandler ())]
 routes = [ ("/_/:model/", method GET $ authOrLogin emptyForm)
-         , ("/_/:model/model/", authOrLogin $ method GET metamodel)
          , ("/login/", method GET loginForm)
          , ("/login/", method POST doLogin)
          , ("/logout/", with auth $ logout >> redirectToLogin)
