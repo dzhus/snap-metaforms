@@ -40,7 +40,8 @@ function backbonizeModel(model) {
             ///
             /// TODO _.extend doesn't work here
             for (k in attrs)
-                this.dirtyAttributes[k] = attrs[k];
+                if (k != "id" && this.fieldHash[k].canWrite)
+                    this.dirtyAttributes[k] = attrs[k];
         },
         /// For checkbox fields, translate "0"/"1" to false/true
         /// boolean.
