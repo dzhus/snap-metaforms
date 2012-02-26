@@ -1,10 +1,10 @@
-/// Backbonize a metamodel, set default values for model
+/// Backbonize a model, set default values for model
 ///
 /// @return Constructor of Backbone model
-function backbonizeModel(metamodel) {
+function backbonizeModel(model) {
     var defaults = {};
     var fieldHash = {};
-    _.each(metamodel.fields,
+    _.each(model.fields,
           function(f) {
               if (!(_.isUndefined(f.default)))
                   defaults[f.name] = f.default;
@@ -20,7 +20,7 @@ function backbonizeModel(metamodel) {
             if (!this.isNew())
                 this.fetch();
         },
-        metamodel: metamodel,
+        model: model,
         fieldHash: fieldHash,
         /// Bind model changes to server sync
         setupServerSync: function () {
@@ -45,7 +45,7 @@ function backbonizeModel(metamodel) {
         /// For checkbox fields, translate "0"/"1" to false/true
         /// boolean.
         parse: function(json) {
-            var m = this.metamodel;
+            var m = this.model;
             for (k in json) {
                 if ((k != "id") && (this.fieldHash[k].type == "checkbox")) {
                     if (json[k] == "1")
@@ -73,13 +73,13 @@ function backbonizeModel(metamodel) {
     return M;
 }
 
-/// Convert metamodel to forest of HTML form elements with appropriate
+/// Convert model to forest of HTML form elements with appropriate
 /// data-bind parameters for Knockout.
 ///
 /// TODO: We can do this on server as well.
 ///
 /// @return String with form HTML
-function renderFormView(metamodel) {
+function renderFormView(model) {
     var templates = [];
 
     _.each($(".field-template"),
@@ -89,12 +89,12 @@ function renderFormView(metamodel) {
 
     var contents = "";
     var fType = "";
-    /// Pick an appropriate form widget for each metamodel
+    /// Pick an appropriate form widget for each model
     /// field type and render actual model value in it
     ///
     /// Set readonly context attribute for fields which have
     /// canEdit=false in form description.
-    _.each(metamodel.fields,
+    _.each(model.fields,
            function (f) {
                if (_.isUndefined(templates[f.type]))
                    fType = "unknown";

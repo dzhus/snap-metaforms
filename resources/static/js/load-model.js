@@ -1,16 +1,16 @@
-/// Metamodel loading, setting up Backbone model, form template and
+/// Model loading, setting up Backbone model, form template and
 /// Knockback integration.
 
-/// Load current JSON metamodel, build Backbone model and view,
+/// Load current JSON model, build Backbone model and view,
 /// setup view→model updater.
 $(function () {
     $.getJSON("model/",
-          function(metamodel) {
-              LoadedMetamodel = metamodel;
+          function(model) {
+              LoadedModel = model;
               FormElement = $("#form");
 
-              mkBackboneModel = backbonizeModel(metamodel);
-              $("#model-name").append(metamodel.title);
+              mkBackboneModel = backbonizeModel(model);
+              $("#model-name").append(model.title);
               setupView(new mkBackboneModel);
 
               TimelineUpdater = window.setInterval(refreshTimeline, 5000);
@@ -63,7 +63,7 @@ function setupView(model) {
 
     refreshTimeline();
 
-    FormElement.html(renderFormView(LoadedMetamodel));
+    FormElement.html(renderFormView(LoadedModel));
     ko.applyBindings(KnockVM);
 
     /// Wait a bit to populate model fields and bind form elements
