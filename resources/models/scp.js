@@ -1,10 +1,14 @@
 {
     "title": "SCP",
+    "canCreate": ["front"],
+    "canRead": true,
+    "canUpdate": ["back", "manager"],
+    "canDelete": ["front", "manager"],
     "fields": [
         {
             "name": "code",
             "label": "Код",
-            "canRead": ["front"]
+            "canWrite": true
         },
         {
             "name": "title",
@@ -22,25 +26,25 @@
             "default": "Евклид",
             "choice": ["Безопасный", "Евклид", "Кетер"],
             "label": "Класс",
-            "canRead": ["front"]
+            "canWrite": ["front"]
         },
         {
             "name": "jobsDone",
-            "label": "Работы завершены",
+            "label": "Оформление завершено",
             "type": "checkbox",
-            "canRead": ["front"]
+            "canWrite": ["front"]
         },
         {
             "name": "conditions",
             "type": "textarea",
             "label": "Условия содержания",
-            "canRead": ["front"]
+            "canWrite": ["back"]
         },
         {
             "name": "description",
             "type": "textarea",
             "label": "Описание",
-            "canRead": ["front"]
+            "canWrite": ["back"]
         }
     ]
 }
