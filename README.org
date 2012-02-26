@@ -4,27 +4,25 @@
   We provide generic CRUD web interface for forms, which are defined
   as collections of fields of different types. Templating is done
   completely on client side using JavaScript. Server backend is
-  powered by snaplet-redson.
+  powered by [[https://github.com/dzhus/snaplet-redson][snaplet-redson]].
 
-** Metamodels
+** Models
 
-   Form definitions (metamodels) use JSON syntax and basically
-   enumerate fields present in the form. Homebrew basic type system is
-   used (currently view widget for field is rendered with regard to
-   field type; form validation, when implemented, could use type
-   information as well).
+   Form definitions (models) use JSON syntax defined by [[https://github.com/dzhus/snaplet-redson][snaplet-redson]]
+   and basically enumerate fields present in the form. Homebrew basic
+   type system is used (currently view widget for field is rendered
+   with regard to field type; form validation, when implemented, could
+   use type information as well).
 
-   Metamodels are stored in `.js` files under `resources/models/`
+   Models are stored in `.js` files under `resources/models/`
    directory.
 
-   Required object fields for metamodel are `title` (readable form
+   Required object fields for model are `title` (readable form
    title) and `fields`, which is in turn a list of objects each
    describing model field. 
 
    Field object must include `name` key which is the internal name of
    the field. `default` key specifies the default value of field.
-   Field may include any other fields which may be used further in
-   templates.
    
 *** Valid field names
     
@@ -108,9 +106,9 @@
       
     #+END_SRC
 *** Form id
-    Consider a metamodel is stored in `scp.js` file; we define
+    Consider a model is stored in `scp.js` file; we define
     formid as filename without extension (`scp`), which is used in URL
-    to access forms built from this metamodel.
+    to access forms built from this model.
 
 ** Frontend
    
@@ -118,18 +116,15 @@
    [[http://documentcloud.github.com/backbone/][Backbone]] JavaScript framework is used to implement binding model to
    view and making automatic server requests to restore/save form
    instance on server (see `/resources/static/js/metamodel.js`). Upon
-   loading the page, metamodel JSON is requested from server, and
-   processed into Backbone model definition. Backbone model provides
-   fetch(), save() and destroy() methods which result in appropriate
-   requests being sent to server.
+   loading the page, model JSON is requested from [[https://github.com/dzhus/snaplet-redson][snaplet-redson]] at
+   `/_/<formid>/model/` URL, and processed into Backbone model
+   definition. Backbone model provides fetch(), save() and destroy()
+   methods which result in appropriate requests being sent to server.
 
    `/_/<formid>/` serves title page (which is in fact the same for any
    <formid>) with all the code required to process metamodels on
-   client side. Client JavaScript further requests metamodel
-   description in bare JSON using `/_/<formid>/model/` URL, from which
-   the server picks `<formid>.js` metamodel and sends it back to
-   client. Redson snaplet is nested under `_/` URL, which provides
-   server API compatible to Backbone.sync.
+   client side. Redson snaplet is nested under `_/` URL, which
+   provides server API compatible to Backbone.sync.
 
    `renderFormView` function builds an HTML form for model fields,
    which is rendered to page. [[http://knockoutjs.com][Knockout]] is used to keep model data in
