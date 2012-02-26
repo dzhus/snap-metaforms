@@ -43,9 +43,9 @@ select {
   vertical-align: middle;
 }
 
-input[readonly],
-textarea[readonly],
-select[readonly] {
+input[disabled],
+textarea[disabled],
+select[disabled] {
   background-color: #eee;
 }
 
