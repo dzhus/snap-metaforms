@@ -164,12 +164,6 @@
     Somewhy we can't just render form once and bind it to different
     model instances using ko.applyBindings && kb.vmRelease (field get
     blank when input starts).
-*** TODO Properly bind all field types
-    - [X] select — (do not use `class` field type to avoid clash with
-      built-in keywords);
-    - [ ] checkbox (Redis uses does not have boolean value type so we
-      should perform bi-directional mapping from "0" to false and "1"
-      to true at Knockback layer);
 *** TODO Client settings
     Some settings need to be served to client code (to use in JS):
    
@@ -177,7 +171,6 @@
     - serverSyncDelay;
     - timelineUpdateInterval;
 
-*** TODO Serve only readable fields from `_/<id>/model`
 ** Metamodels
 *** TODO Aggregate fields
     Certain fields should support «explosion» into several detailed
