@@ -90,14 +90,16 @@ function renderFormView(metamodel) {
            });
 
     var contents = "";
+    var fType = "";
     /// Pick an appropriate form widget for each metamodel
     /// field type and render actual model value in it
     _.each(metamodel.fields,
            function (f) {
-               f.type = f.type || DefaultFieldType;
                if (_.isUndefined(templates[f.type]))
-                   f.type = "unknown";
-               contents += Mustache.render(templates[f.type], f);
+                   fType = "unknown";
+               else
+                   fType = f.type;
+               contents += Mustache.render(templates[fType], f);
            });
 
     return contents;
