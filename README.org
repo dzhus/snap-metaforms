@@ -17,98 +17,7 @@
    Models are stored in `.js` files under `resources/models/`
    directory.
 
-   Required object fields for model are `title` (readable form
-   title) and `fields`, which is in turn a list of objects each
-   describing model field. 
-
-   Field object must include `name` key which is the internal name of
-   the field. `default` key specifies the default value of field.
-   
-*** Valid field names
-    
-    `class` cannot be used as a field name.
-
-*** Valid types
-    
-    Type system currently matches HTML input element types, with
-    following values valid for `type`:
-
-    - "text"
-    - "textarea"
-    - "checkbox"
-    - "select"
-    
-*** Field permissions
-    Any field may include "canRead" and "canWrite" properties which
-    are lists of user roles which allow reading and writing to field,
-    respectively. They can be boolean values as well. Implementation
-    generally follows these rules:
-
-    - If field is unreadable, then client must not render it. 
-    
-    - If field is not writable by user, then form input element must
-      be inactive.
-
-    - If field is writable, then it's readable even if user role is
-      not listed among "canRead".
-
-    - If permission property is boolean, then "true" means any role
-      applies has the permission and "false" means none of roles does.
-      "false" value is the same as empty list.
-
-    - Client does not attempt to write inaccessible fields to server
-      and does not expect unreadable fields in server response.
-*** Sample form definition
-    (As described in [[http://scp-wiki.wikidot.com/][The SCP Foundation]] archives)
-    
-    #+BEGIN_SRC javascript
-      {
-          "name": "SCP",
-          "fields": [
-              {
-                  "name": "code",
-                  "label": "Code",
-                  "canEdit": ["front", "back"]
-              },
-              {
-                  "name": "title",
-                  "label": "Title",
-                  "canEdit": ["front", "back"]
-              },
-              {
-                  "name": "foundAt",
-                  "label": "Original location",
-                  "canEdit": ["front", "back"]
-              },
-              {
-                  "name": "dangerClass",
-                  "type": "select",
-                  "default": "Euclid",
-                  "choice": ["Safe", "Euclid", "Keter"],
-                  "label": "Class",
-                  "canRead": ["front"]
-                  "canEdit": ["back"]
-              },
-              {
-                  "name": "conditions",
-                  "type": "textarea",
-                  "label": "Special Containment Procedures",
-                  "canEdit": ["back"]
-              },
-              {
-                  "name": "description",
-                  "type": "textarea",
-                  "label": "Description",
-                  "canEdit": ["back"]
-              }
-          ]
-      }
-      
-    #+END_SRC
-*** Form id
-    Consider a model is stored in `scp.js` file; we define
-    formid as filename without extension (`scp`), which is used in URL
-    to access forms built from this model.
+   Refer to [[https://github.com/dzhus/snaplet-redson][snaplet-redson]] for form definition syntax.
 
 ** Frontend
    
@@ -138,6 +47,8 @@
    type `<ftype>`. Fields of unknown types are rendered using
    `unknown-field-template`. Rendering is done using context of field
    object from metamodel.
+
+   Per-field write permissions are respected during form rendering.
 
    `/resource/static/js/load-model.js` provides utility functions to
    instantiate Backbone model & view for form, as well as selecting
