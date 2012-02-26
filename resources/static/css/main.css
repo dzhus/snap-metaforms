@@ -43,6 +43,12 @@ select {
   vertical-align: middle;
 }
 
+input[readonly],
+textarea[readonly],
+select[readonly] {
+  background-color: #ffb8b8;
+}
+
 input:focus, textarea:focus {
   outline: 0;
   border-color: rgba(82, 168, 236, 0.8);
