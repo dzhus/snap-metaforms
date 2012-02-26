@@ -47,7 +47,7 @@ function backbonizeModel(metamodel) {
         parse: function(json) {
             var m = this.metamodel;
             for (k in json) {
-                if (this.fieldHash[k].type == "checkbox") {
+                if ((k != "id") && (this.fieldHash[k].type == "checkbox")) {
                     if (json[k] == "1")
                         json[k] = true;
                     else
@@ -93,6 +93,9 @@ function renderFormView(metamodel) {
     var fType = "";
     /// Pick an appropriate form widget for each metamodel
     /// field type and render actual model value in it
+    ///
+    /// Set readonly context attribute for fields which have
+    /// canEdit=false in form description.
     _.each(metamodel.fields,
            function (f) {
                if (_.isUndefined(templates[f.type]))
