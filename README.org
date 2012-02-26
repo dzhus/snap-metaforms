@@ -65,6 +65,9 @@
 
 ** Snap
 ** Frontend
+*** TODO Respect whole-form permissions
+    - [ ] Do not show edit buttons for read-only forms.
+    - [ ] Show error messages on unauthorized access.
 *** TODO Render form once for a model
     Somewhy we can't just render form once and bind it to different
     model instances using ko.applyBindings && kb.vmRelease (field get
