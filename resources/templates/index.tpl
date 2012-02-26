@@ -33,7 +33,7 @@
           </div>
           <div style="float: right;">
             <a href="/logout/">
-              <img src="/s/images/exit.png" />
+              <img src="/s/images/exit.png" alt="Выход"/>
             </a>
           </div>
           <div style="clear: both;" />
