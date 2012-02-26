@@ -1,7 +1,7 @@
 /// Backbonize a model, set default values for model
 ///
 /// @return Constructor of Backbone model
-function backbonizeModel(model) {
+function backbonizeModel(model, modelName) {
     var defaults = {};
     var fieldHash = {};
     _.each(model.fields,
@@ -79,7 +79,7 @@ function backbonizeModel(model) {
             this.attributeQueue = {};
             return json;
         },
-        urlRoot: "."
+        urlRoot: "/_/" + modelName
     });
 
     return M;
