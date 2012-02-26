@@ -14,10 +14,10 @@
     <!-- Utility library, Backbone dependency -->
     <script src="/s/js/thirdparty/underscore-min.js" />
     <!-- Loose MVC -->
-    <script src="/s/js/thirdparty/backbone-min.js" />
+    <script src="/s/js/thirdparty/backbone-0.9.1.min.js" />
 
     <!-- Knockback is a Knockout + Backbone glue -->
-    <script src="/s/js/thirdparty/knockback-0.12.js" />
+    <script src="/s/js/thirdparty/knockback-0.13.min.js" />
 
     <!-- Simple templates -->
     <script src="/s/js/thirdparty/mustache.js" />
