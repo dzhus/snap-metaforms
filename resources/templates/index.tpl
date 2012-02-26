@@ -42,7 +42,20 @@
               <div style="clear: both;" />
             </ifLoggedIn>
           </div>
-
+           <div class="box">
+             <ul class="nav nav-list" id="menu">
+               <li class="nav-header">
+                 Доступные формы
+               </li>
+               <li id="menu-scp">
+                 <a href="/#scp/">SCP</a>
+               </li>
+               <li id="menu-newcase">
+                 <a href="/#newcase/">Новый кейс</a>
+               </li>
+               ...
+             </ul>
+           </div>
           <div class="box" id="messages" />
 
           <div class="box" id="timeline" />
@@ -51,7 +64,9 @@
         <div class="span8">
           <div class="box">
             <fieldset>
-              <legend id="model-name" />
+              <legend>
+                <span id="model-name" />
+              </legend>
               <form id="form" class="form-horizontal" />
             </fieldset>
           </div>
@@ -149,7 +164,7 @@
         {{# canUpdate }}
         <button class="btn btn-success" type="button"
                 onClick="save();">
-          <i class="icon-pencil" /> Сохранить</button>
+          <i class="icon-pencil icon-white" /> Сохранить</button>
         {{/ canUpdate }}
         {{# canCreate }}
         <button class="btn" type="button"
@@ -160,16 +175,16 @@
         <button class="btn btn-danger" type="button"
                 style="float:right;"
                 onClick="remove();">
-          <i class="icon-trash" /> Удалить</button>
+          <i class="icon-trash icon-white" /> Удалить</button>
         {{/ canDelete }}
         <div style="clear: both;" />
       </div>
     </script>
 
-    <script type="text/template" id="timeline-item">
-      <span class="btn{{# sel }} btn-info{{/ sel }}"
-            id="timeline-{{id}}"
-            onClick="restore({{ id }});">{{ id }} </span>
+    <script type="text/template" id="timeline-item-template">
+      <a class="btn{{# sel }} btn-info{{/ sel }}"
+         id="timeline-{{id}}"
+         href="#{{modelName}}/{{ id }}/">{{ id }}</a> 
     </script>
 
     <!-- WebSocket notifications -->

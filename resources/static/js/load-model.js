@@ -4,30 +4,59 @@
 /// Load current JSON model, build Backbone model and view,
 /// setup view→model updater.
 $(function () {
+    var MenuRouter = Backbone.Router.extend({
+        routes: {
+            ":model/:id/": "instanceSelect",
+            ":model/":     "modelSelect"
+        },
+
+        modelSelect: function (m) {
+            loadModel(m);
+        },
+        
+        instanceSelect: function (m, id) {
+            if (m == global.modelName)
+                restore(id);
+            else
+                loadModel(m, id);
+        }
+    });    
+
     window.global = {
         formElement: $("#form"),
         knockVM: {},
         loadedModel: {},
         modelName: null,
         mkBackboneModel: null,
+        router: new MenuRouter
     };
 
-    setupModel("scp");
+    Backbone.history.start();
 });
 
 function modelMethod(modelName, method) {
     return "/_/" + modelName + "/" + method;
 }
 
-/// Load model definition, set up globals and TimelineUpdater
-function setupModel(modelName) {
+/// Load model definition, set up globals. If id is not null, render
+/// form for instance, otherwise render empty form.
+function loadModel(modelName, id) {
+    // Highlight new menu item
+    $("#menu-" + global.modelName).removeClass("active");
+    $("#menu-" + modelName).addClass("active");
+
     $.getJSON(modelMethod(modelName, "model"),
               function(model) {
-                  global.modelName = modelName;
                   global.loadedModel = model;
-                  global.mkBackboneModel = backbonizeModel(model);
-                  $("#model-name").append(model.title);
-                  setupView(new global.mkBackboneModel);
+                  global.modelName = modelName;
+                  global.mkBackboneModel = backbonizeModel(model, modelName);
+                  $("#model-name").text(model.title);
+
+
+                  var idHash = {};
+                  if (id)
+                      idHash = {id: String(id)}
+                  setupView(new global.mkBackboneModel(idHash));
               });
 }
 
@@ -36,11 +65,13 @@ function refreshTimeline() {
     $.get(modelMethod(global.modelName, "timeline"),
           function(data) {
               var contents = "";
-              var tpl = $("#timeline-item").html();
-
+              var tpl = $("#timeline-item-template").html();
+              var currentInstanceId = global.knockVM._kb_vm.model.id;
               _.each(data, function (id) {
-                  contents += Mustache.render(tpl, {"sel": id == global.knockVM.model.id,
-                                                    "id": id});
+                  contents += Mustache.render(tpl, 
+                                              {"sel": id == currentInstanceId,
+                                               "modelName": global.modelName,
+                                               "id": id});
               });
 
               $("#timeline").html(contents);
@@ -53,9 +84,9 @@ function forgetView() {
     global.formElement.empty();
 }
 
-/// Create form for model and fill it
+/// Render form for model and bind it
 function setupView(instance) {
-    global.knockVM = new kb.viewModel(instance);
+    global.knockVM = new kb.ViewModel(instance);
 
     refreshTimeline();
 
@@ -65,13 +96,13 @@ function setupView(instance) {
     /// Wait a bit to populate model fields and bind form elements
     /// without PUT-backs to server
     window.setTimeout(function () {
-        global.knockVM.model.setupServerSync();
+        global.knockVM._kb_vm.model.setupServerSync();
     }, 1000);
 }
 
 /// Save current model instance
 function save() {
-    global.knockVM.model.save();
+    global.knockVM._kb_vm.model.save();
 }
 
 /// Save current model instance and start fresh form
@@ -89,7 +120,7 @@ function restore(id) {
 
 /// Remove currently loaded instance from storage and start fresh form
 function remove(id) {
-    global.knockVM.model.destroy();
+    global.knockVM._kb_vm.model.destroy();
     forgetView();
     setupView(new global.mkBackboneModel);
 }
