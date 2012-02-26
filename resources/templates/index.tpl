@@ -46,13 +46,7 @@
     <div id="container" class="block">
       <h1>Заполнение формы «<span id="model-name" />»</h1>
       <div id="message" style="display: none;" />
-      <form>
-        <ul id="form" />
-        <button class="btn" type="button"
-                onClick="proceed();">Сохранить и начать новую</button>
-        <button class="btn danger" type="button"
-                style="float:right;"
-                onClick="remove();">Удалить</button>
+      <form id="form">
       </form>
     </div>
 
@@ -60,7 +54,7 @@
     <script type="text/template" 
             class="field-template"
             id="textarea-field-template">
-      <li class="{{ name }} item">
+      <div class="{{ name }} item">
         <label>{{ label }}:<br />
           <textarea class="{{ name }} field" 
                     name="{{ name }}" 
@@ -69,13 +63,13 @@
                     data-bind="value: {{ name }},
                                valueUpdate: 'afterkeydown'" />
         </label>
-      </li>
+      </div>
     </script>
 
     <script type="text/template"
             class="field-template"
             id="text-field-template">
-      <li class="{{ name }} item">
+      <div class="{{ name }} item">
         <label>{{ label }}:<br />
           <input type="text"
                  class="{{ name }} field"
@@ -85,31 +79,31 @@
                  data-bind="value: {{ name }}, 
                             valueUpdate: 'afterkeydown'" />
         </label>
-      </li>
+      </div>
     </script>
 
     <script type="text/template"
             class="field-template"
             id="select-field-template">
-      <li class="{{ name }} item">
+      <div class="{{ name }} item">
         <label>{{ label }}:<br />
           <select class="{{ name }} field"
                   name="{{ name }}"
                   {{# readonly }}readonly{{/ readonly }}
                   data-bind="value: {{ name }},
-                             valueUpdate: 'afterkeydown'">
+                             valueUpdate: 'change'">
             {{# choice }}
             <option value="{{.}}">{{.}}</option>
             {{/ choice }}
           </select>
         </label>
-      </li>
+      </div>
     </script>
 
     <script type="text/template"
             class="field-template"
             id="checkbox-field-template">
-      <li class="{{ name }} item">
+      <div class="{{ name }} item">
         <label><input type="checkbox" 
                       class="{{ name }} field"
                       name="{{ name }}"
@@ -118,16 +112,29 @@
                                  valueUpdate: 'change'" />
           {{ label }}
         </label>
-      </li>
+      </div>
     </script>
 
     <!-- Template for fields with unknown type -->
     <script type="text/template"
             class="field-template"
             id="unknown-field-template">
-      <li class="{{ name }} item">
+      <div class="{{ name }} item">
         {{ name }}
-      </li>
+      </div>
+    </script>
+    
+    <script type="text/template"
+            id="canCreate-permission-template">
+      <button class="btn" type="button"
+              onClick="proceed();">Сохранить и начать новую</button>
+    </script>
+
+    <script type="text/template"
+            id="canDelete-permission-template">
+      <button class="btn danger" type="button"
+              style="float:right;"
+              onClick="remove();">Удалить</button>
     </script>
 
     <script type="text/template" id="timeline-item">

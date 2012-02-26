@@ -15,6 +15,8 @@ function backbonizeModel(model) {
 
     var M = Backbone.Model.extend({
         defaults: defaults,
+        /// Temporary storage for attributes queued for sending to
+        /// server
         dirtyAttributes: {},
         initialize: function() {
             if (!this.isNew())
@@ -35,12 +37,16 @@ function backbonizeModel(model) {
         },
         set: function(attrs, options){
             Backbone.Model.prototype.set.call(this, attrs, options);
-            /// Queue new values to be saved on server using
-            /// dirtyAttributes
+            /// Queue new values in dirtyAttributes
+            ///
+            /// Never send "id", never send anything if user has no
+            /// canUpdate permission.
             ///
             /// TODO _.extend doesn't work here
             for (k in attrs)
-                if (k != "id" && this.fieldHash[k].canWrite)
+                if (k != "id" &&
+                    this.model.canUpdate &&
+                    this.fieldHash[k].canWrite)
                     this.dirtyAttributes[k] = attrs[k];
         },
         /// For checkbox fields, translate "0"/"1" to false/true
@@ -90,6 +96,7 @@ function renderFormView(model) {
 
     var contents = "";
     var fType = "";
+    var readonly = false;
     /// Pick an appropriate form widget for each model
     /// field type and render actual model value in it
     ///
@@ -101,8 +108,17 @@ function renderFormView(model) {
                    fType = "unknown";
                else
                    fType = f.type;
+               readonly = !model.canUpdate || !f.canWrite;
                contents += Mustache.render(templates[fType],
-                                           _.extend(f, {readonly: !f.canWrite}));
+                                           _.extend(f, {readonly: readonly}));
+           });
+    
+    /// Add HTML to contents for non-false permissions
+    var permissions = ["canCreate", "canUpdate", "canDelete"];
+    _.each(permissions,
+           function (p) {
+               if (model[p])
+                   contents += $("#" + p + "-permission-template").text();
            });
 
     return contents;
