@@ -31,7 +31,17 @@ $(function () {
         router: new MenuRouter
     };
 
-    Backbone.history.start();
+    /// Request readable models list from server and render side menu
+    $.getJSON("/_/_models/", function (models) {
+        var elem = $("#menu");
+        var tpl = $("#model-menu-template").html();
+        var contents = Mustache.render(tpl, {models: models});
+        elem.html(contents);
+        /// Start routing after menu has been rendered to highlight
+        /// current model properly
+        Backbone.history.start();
+    });
+
 });
 
 function modelMethod(modelName, method) {
@@ -39,9 +49,9 @@ function modelMethod(modelName, method) {
 }
 
 /// Load model definition, set up globals. If id is not null, render
-/// form for instance, otherwise render empty form.
+/// form for instance, otherwise render empty form. Highlight active
+/// model menu item.
 function loadModel(modelName, id) {
-    // Highlight new menu item
     $("#menu-" + global.modelName).removeClass("active");
     $("#menu-" + modelName).addClass("active");
 

@@ -43,18 +43,7 @@
             </ifLoggedIn>
           </div>
            <div class="box">
-             <ul class="nav nav-list" id="menu">
-               <li class="nav-header">
-                 Доступные формы
-               </li>
-               <li id="menu-scp">
-                 <a href="/#scp/">SCP</a>
-               </li>
-               <li id="menu-newcase">
-                 <a href="/#newcase/">Новый кейс</a>
-               </li>
-               ...
-             </ul>
+             <ul class="nav nav-list" id="menu" />
            </div>
           <div class="box" id="messages" />
 
@@ -181,6 +170,19 @@
       </div>
     </script>
 
+    <!-- Form selection menu template -->
+    <script type="text/template" id="model-menu-template">
+      <li class="nav-header">
+        Доступные формы
+      </li>
+      {{# models }}
+      <li id="menu-{{ name }}">
+        <a href="/#{{ name }}/">{{ title }}</a>
+      </li>
+      {{/ models }}
+    </script>
+
+    
     <script type="text/template" id="timeline-item-template">
       <a class="btn{{# sel }} btn-info{{/ sel }}"
          id="timeline-{{id}}"
