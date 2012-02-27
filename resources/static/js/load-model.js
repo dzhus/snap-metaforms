@@ -28,7 +28,8 @@ $(function () {
         loadedModel: {},
         modelName: null,
         mkBackboneModel: null,
-        router: new MenuRouter
+        router: new MenuRouter,
+        timeliner: null,
     };
 
     /// Request readable models list from server and render side menu
@@ -48,9 +49,9 @@ function modelMethod(modelName, method) {
     return "/_/" + modelName + "/" + method;
 }
 
-/// Load model definition, set up globals. If id is not null, render
-/// form for instance, otherwise render empty form. Highlight active
-/// model menu item.
+/// Load model definition, set up globals and timeline updater. If id
+/// is not null, render form for instance, otherwise render empty
+/// form. Highlight active model menu item.
 function loadModel(modelName, id) {
     $("#menu-" + global.modelName).removeClass("active");
     $("#menu-" + modelName).addClass("active");
@@ -62,6 +63,8 @@ function loadModel(modelName, id) {
                   global.mkBackboneModel = backbonizeModel(model, modelName);
                   $("#model-name").text(model.title);
 
+                  if (_.isNull(global.timeliner))
+                      global.timeliner = window.setInterval(refreshTimeline, 5000);
 
                   var idHash = {};
                   if (id)
