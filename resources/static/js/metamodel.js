@@ -118,8 +118,10 @@ function renderFormView(model) {
                                            _.extend(f, {readonly: readonly}));
            });
     
+    var modelRo = !model.canUpdate && !model.canCreate && !model.canDelete;
     /// Add HTML to contents for non-false permissions
-    contents += Mustache.render($("#permission-template").text(), model);
+    contents += Mustache.render($("#permission-template").text(), 
+                                _.extend(model, {readonly: modelRo}));
 
     return contents;
 }

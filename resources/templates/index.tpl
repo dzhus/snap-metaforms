@@ -147,9 +147,14 @@
       </div>
     </script>
     
+    <!-- Form controls wrt user permissions -->
     <script type="text/template"
             id="permission-template">
       <div class="form-actions">
+        {{# readonly }}
+        <button class="btn disabled" type="button">
+          <i class="icon-ban-circle" /> Только для чтения</button>
+        {{/ readonly }}
         {{# canUpdate }}
         <button class="btn btn-success" type="button"
                 onClick="save();">
