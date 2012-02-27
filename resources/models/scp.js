@@ -1,9 +1,9 @@
 {
     "title": "SCP",
     "canCreate": ["front"],
-    "canRead": true,
-    "canUpdate": ["back", "manager"],
-    "canDelete": ["front", "manager"],
+    "canRead": ["front", "back", "manager"],
+    "canUpdate": ["front", "back"],
+    "canDelete": ["manager"],
     "fields": [
         {
             "name": "code",
@@ -18,7 +18,7 @@
         {
             "name": "foundAt",
             "label": "Место обнаружения",
-            "canRead": ["front"]
+            "canWrite": true
         },
         {
             "name": "dangerClass",
@@ -26,25 +26,25 @@
             "default": "Евклид",
             "choice": ["Безопасный", "Евклид", "Кетер"],
             "label": "Класс",
-            "canWrite": ["front"]
+            "canWrite": true
         },
         {
             "name": "jobsDone",
             "label": "Оформление завершено",
             "type": "checkbox",
-            "canWrite": ["front"]
+            "canWrite": true
         },
         {
             "name": "conditions",
             "type": "textarea",
             "label": "Условия содержания",
-            "canWrite": ["back"]
+            "canWrite": true
         },
         {
             "name": "description",
             "type": "textarea",
             "label": "Описание",
-            "canWrite": ["back"]
+            "canWrite": true
         }
     ]
 }
