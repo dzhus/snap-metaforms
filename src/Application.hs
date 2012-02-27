@@ -93,7 +93,7 @@ doLogin = ifTop $ do
   res <- with auth $ loginByUsername l (ClearText p) r
   case res of
     Left err -> redirectToLogin
-    Right user -> redirect "/_/scp/"
+    Right user -> redirect "/"
 
 
 ------------------------------------------------------------------------------
